@@ -25,21 +25,15 @@ import sys
 from pathlib import Path
 
 RADICE = Path(__file__).resolve().parent
-def _extra(nome):
-    """Parole vietate in più, una regex per riga, da un file locale (non va nel repo pubblico)."""
-    f = RADICE / nome
-    if not f.exists():
-        return ""
-    righe = [r.strip() for r in f.read_text(encoding="utf-8").splitlines() if r.strip() and not r.startswith("#")]
-    return "|".join(righe)
-
-
-# Elenco di base, generico. Per le parole del TUO caso (nomi di persone, aziende, domini) crea i file locali
-# CONTROLLA-PULIZIA-marcatori.local.txt e CONTROLLA-PULIZIA-dazero.local.txt (una regex per riga): sono ignorati da git.
-MARCATORI = "|".join(x for x in (r"onedrive-personale|locale-onedrive|/users/[a-z0-9._-]+/|c:\\users\\[a-z0-9._ -]+\\"
-                                 r"|chiavi-app-android|segreti-dal-vault", _extra("CONTROLLA-PULIZIA-marcatori.local.txt")) if x)
-DA_ZERO = "|".join(x for x in (r"azienda[ _-]?(uno|due|tre)|jarvis[ _-]brain|progetto[ _-](uno|due|tre)|prodotto-uno"
-                               r"|\bceo-[a-z]|\bvice-ceo|n8n|\bcrm\b", _extra("CONTROLLA-PULIZIA-dazero.local.txt")) if x)
+MARCATORI = (r"telegram|vps|hostinger|grok|jarviboss|jboss|\bboss\b|andr[e]a|man[a]i|m[a]meli|140 ?gr[a]mmi|140gr[a]mmi|priv[a]te ?jet"
+             r"|s[a]rdinia|alpine ?priv[a]te|\bspj\b|giusepp[e]|odoo|supabase|asterisk|thunderbird|postino|andyTr[u]st|ital[o]marziano"
+             r"|instinct\.py|inoltra.instinct|patrimoni[a]_|onedrive-personale|\bceo\b"
+             r"|azienda (uno|due)|progetto-b\b|titolare (brain|personale)|\bmy-?140|crm-?140|-140\b|_140\b|air-dynamic|crm1-odoo"
+             r"|locale-onedrive|segreti-dal-vault|chiavi-app-android|passbolt")
+DA_ZERO = (r"azienda[ _-]?(uno|due|tre)|jarvis[ _-]brain|progetto[ _-](uno|due|tre|crm)|vita personale|patrimonio"
+           r"|prodotto-uno|jarvis-titolare|titolare brain|agenti-utente|archivista|crm-uno|sito-uno|cambusa"
+           r"|\bceo-[a-z]|\bvice-ceo|\bfpmarket|\bpienissimo|\bcrm\b|n8n|instinct|/opt/jarvis-vps|\bg140\b|db-140"
+           r"|vps-shell|passbolt|giuseppe|finocchiett|due-due|due-gestionale|garante-dati|fase 2: serve")
 SEGRETI = [
     ("chiave sk-", r"(?<![A-Za-z0-9])sk-(?:ant-)?[A-Za-z0-9_-]{20,}"),
     ("token GitHub", r"(?<![A-Za-z0-9])(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})"),

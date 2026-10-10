@@ -26,7 +26,7 @@
 
   // dal 2026-10-07 (l'utente): i dieci personaggi nuovi con il loro mestiere (Dots_Agenti_AI_HD, licenza MIT in
   // dots/ATTRIBUZIONE-nuovi-dots.txt). «jarvis» (la stella viola col sigaro, fatta il 07/10) è solo di Jarvis.
-  const COLORI = ["avvocato", "commercialista", "consulente-del-lavoro", "finocchietto", "manutentore",
+  const COLORI = ["avvocato", "commercialista", "consulente-del-lavoro", "esploratore", "manutentore",
     "marketing", "notaio", "posta", "ricercatore-web", "social"];
   const MESTIERI = [   // il nome dell'agente dice che personaggio è; chi non c'è qui prende il suo per hash
     [/avvocat|legale|contenzios/i, "avvocato"], [/notai/i, "notaio"],
@@ -36,7 +36,7 @@
     [/marketing|seo|campagn|pubblicit|brand/i, "marketing"],
     [/manutent|meccanic|sistemist|devops|server|tecnic|riparator/i, "manutentore"],
     [/ricercator|research|analista|macro|geopolit|insider|convegni|settori/i, "ricercatore-web"],
-    [/finocchiett|esplorator|scout|viaggi|turism/i, "finocchietto"],
+    [/esplorator|scout|viaggi|turism/i, "esploratore"],
   ];
   const BASE = "/static/dots/";
   const CHIAVE = "cc.avatar", CHIAVE_FERMI = "cc.avatar.fermi";

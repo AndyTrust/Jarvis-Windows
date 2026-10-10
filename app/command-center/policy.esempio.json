@@ -6,7 +6,7 @@
       "allow": [],
       "deny": [{"tool": "Bash", "contiene": "\\.claude/memoria"}]
     },
-    "analista-finanziario": {
+    "analista-prova": {
       "allow": ["Read", "Grep"],
       "deny": ["mcp__*__send_*", "mcp__*__delete_*"]
     }

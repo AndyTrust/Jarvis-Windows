@@ -124,7 +124,7 @@ SPIE = {
     'database': "ps -eo args | grep -cE '[s]sh.*%s.*(5432)'" % VPS,
     # solo le shell interattive (la riga finisce col nome dell'host): i tunnel (-N/-L/-R/-D) e le ssh
     # con un comando dopo l'host (il ponte del telefono) non sono una shell che modifica (26/09/2026)
-    'vps-shell': "ps -eo args | grep -E '[s]sh( |.* )%s$' | grep -vcE ' -(N|L|R|D)( |$)'" % VPS,
+    'server-shell': "ps -eo args | grep -E '[s]sh( |.* )%s$' | grep -vcE ' -(N|L|R|D)( |$)'" % VPS,
     'chrome-debug': "lsof -nP -iTCP:9222 -sTCP:LISTEN 2>/dev/null | grep -c LISTEN",
     'ponte-9223': "lsof -nP -iTCP:9223 -sTCP:LISTEN 2>/dev/null | grep -c LISTEN",
     'telefono-adb': "adb devices 2>/dev/null | grep -c 'device$'",
@@ -136,7 +136,7 @@ SPIE = {
 # sempre che va tutto bene — l'errore già fatto una volta oggi.
 SPIE_VPS = {
     'database': "ps -eo args | grep -c '[d]ocker exec.*psql'",
-    'vps-shell': "who 2>/dev/null | grep pts | grep -vc tmux",   # le finestre tmux persistenti non contano (26/09/2026)
+    'server-shell': "who 2>/dev/null | grep pts | grep -vc tmux",   # le finestre tmux persistenti non contano (26/09/2026)
 }
 
 # I contenitori accesi NON sono spie: girano sempre, e segnarli abusivi a ogni

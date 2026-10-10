@@ -101,9 +101,9 @@ class Policy(unittest.TestCase):
     def test_policy_di_esempio_valida(self):
         d = json.loads((QUI / "policy.esempio.json").read_text(encoding="utf-8"))
         self.assertEqual(d["default"], "invariato")
-        self.assertIsNone(conferme.motivo("Read", {}, self.radici, agente="analista-finanziario",
+        self.assertIsNone(conferme.motivo("Read", {}, self.radici, agente="analista-prova",
                                           policy_file=QUI / "policy.esempio.json"))
-        self.assertTrue(conferme.motivo("mcp__x__send_mail", {}, self.radici, agente="analista-finanziario",
+        self.assertTrue(conferme.motivo("mcp__x__send_mail", {}, self.radici, agente="analista-prova",
                                         policy_file=QUI / "policy.esempio.json").startswith("policy:"))
 
 
@@ -225,7 +225,7 @@ class ModoApprovazione(unittest.TestCase):
             audit.AUDIT_FILE = Path(t) / "a.jsonl"
             try:
                 r1 = ns["azione"]({"tipo": "decisione_chat", "decisione": "approvata",
-                                   "richiesta": "R" * 500, "agente": "analista-finanziario"})
+                                   "richiesta": "R" * 500, "agente": "analista-prova"})
                 r2 = ns["azione"]({"tipo": "decisione_chat", "decisione": "rifiutata", "richiesta": "ciao"})
                 righe = [json.loads(x) for x in audit.AUDIT_FILE.read_text(encoding="utf-8").splitlines()]
             finally:
@@ -234,7 +234,7 @@ class ModoApprovazione(unittest.TestCase):
         self.assertEqual(len(righe), 2)
         a, b = righe
         self.assertEqual((a["verdetto"], a["tool"], a["regola"], a["approvato_da"], a["agente"]),
-                         ("approvato", "chat", "modo approvazione", "utente", "analista-finanziario"))
+                         ("approvato", "chat", "modo approvazione", "utente", "analista-prova"))
         self.assertEqual(len(a["sintesi"]), 200)
         self.assertEqual((b["verdetto"], b["agente"], b["sintesi"]), ("rifiutato", "", "ciao"))
 

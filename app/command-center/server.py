@@ -2607,7 +2607,7 @@ def avvia_gruppo(pid):
     richiesta = (
         f"Sei {cg}, capogruppo del progetto «{p['nome']}». Qui sotto trovi SOLO l'indice della cartella del progetto "
         "(struttura, non contenuto).\n\nREGOLE: sola lettura. Non leggere documenti interi: apri al massimo 5 file, uno alla "
-        "volta, solo se l'indice non basta. Nessuna proposta fiscale o legale senza passare dal commercialista.\n\n"
+        "volta, solo se l'indice non basta. Nessuna proposta fiscale o legale come certezza: va verificata da un professionista.\n\n"
         "COMPITO: proponi da 3 a 8 sotto-agenti specialisti per questo progetto. Rispondi SOLO con un blocco JSON, "
         "senza altro testo, in questa forma:\n"
         '[{"nome":"minuscolo-con-trattini","description":"quando usarlo, una frase","model":"sonnet","motivo":"quale cartella lo giustifica"}]\n'
@@ -2862,7 +2862,7 @@ def allineamento(lavagna):
     Un filo vale nei due versi (la pagina scrive il nome a tutte e due le schede). Una coppia
     conta una volta sola anche se il problema si vede da tutti e due i lati: 30/09/2026, l'utente ha
     trovato «18 differenze» sempre uguali e sembravano troppe — erano 13 coppie reali, 5 contate
-    due volte (una per ogni profilo che nomina l'altro senza filo, es. due-gestionale↔due-partner)."""
+    due volte (una per ogni profilo che nomina l'altro senza filo, es. gestionale↔partner)."""
     _, nodi, fili = _fili_agenti(lavagna)
     profili = dict(_tutti_profili())
     chiavi = {n["agente"] for n in nodi.values()} & set(profili)
@@ -7168,7 +7168,7 @@ def _incarichi():
 _INCARICHI_POOL = {"p": None}
 _INCARICHI_LOCK = threading.Lock()
 INCARICHI_DA = "assistente"
-INCARICHI_FASE2 = {"jarvis-pc"}          # Fase 2: serve il sì di l'amministratore
+INCARICHI_BLOCCATI = set(CFG.get("incarichi_bloccati") or [])   # agenti a cui la pagina non manda incarichi (configurazione.json)
 
 
 def _server_configurato():
@@ -8040,8 +8040,8 @@ class Gestore(BaseHTTPRequestHandler):
                     a = str(corpo.get("a") or "").strip()
                     testo = corpo.get("testo")
                     tipo = str(corpo.get("tipo") or "domanda")
-                    if a in INCARICHI_FASE2:
-                        return self._invia(400, {"errore": "Fase 2: serve il sì di l'amministratore"})
+                    if a in INCARICHI_BLOCCATI:
+                        return self._invia(400, {"errore": "a questo agente non si mandano incarichi dalla pagina"})
                     if not re.fullmatch(r"[a-z0-9-]{1,40}", a):
                         return self._invia(400, {"errore": "a: il nome di un agente (minuscole, cifre, trattini)"})
                     if not isinstance(testo, str) or not testo.strip():

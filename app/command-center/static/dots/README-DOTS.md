@@ -39,7 +39,7 @@ oppure va rispettata la licenza MIT (avviso di copyright e testo della licenza i
 ## Aggiornamento 2026-10-07: i dieci personaggi nuovi (l'utente)
 
 l'utente ha creato dieci Dots con il loro mestiere (cartella privata dell'autore): avvocato, commercialista,
-consulente-del-lavoro, finocchietto, manutentore, marketing, notaio, posta, ricercatore-web, social. Qui sostituiscono i
+consulente-del-lavoro, esploratore, manutentore, marketing, notaio, posta, ricercatore-web, social. Qui sostituiscono i
 quattro colori di OpenDots (`<id>-64.png`, `-128.png`, `-256.png`, `-256.webp`). `jarvis-*` (stella viola col sigaro) è solo di Jarvis.
 `dots.js`: il nome dell'agente sceglie il personaggio (tabella `MESTIERI`), chi non ha un mestiere prende il suo per hash.
 Licenza: derivati di OpenDots (MIT, Atai Barkai): `LICENSE-OpenDots.txt` + `ATTRIBUZIONE-nuovi-dots.txt` restano con le immagini.

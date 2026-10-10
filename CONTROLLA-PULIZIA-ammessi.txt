@@ -27,5 +27,3 @@ supabase
 -----BEGIN OPENSSH PRIVATE KEY-----\S*FINTA
 # il link di affiliazione della VPS facoltativa, dichiarato come tale (docs/affiliazione.txt, 2026-10-10)
 https://www\.hostinger\.com/it/prezzi\?REFERRALCODE=ITALOMARZIANO
-/users/(x|tu)/
-c:\\users\\tu\\

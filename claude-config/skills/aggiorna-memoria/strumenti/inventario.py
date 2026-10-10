@@ -179,7 +179,7 @@ def main():
     parts.append(f"## Auto-memoria tecnica di Claude Code — {len(auto_mem)} file")
     parts.append("")
     parts.append("Tutti sotto lo slug «home» (`-Users-tu`), non nel progetto/spazio "
-                  "giusto — bug noto, vedi `brain/SKILL.md`. Da smistare per spazio (fase 2).")
+                  "giusto — bug noto, vedi `brain/SKILL.md`. Da smistare per spazio (in un secondo giro).")
     parts.append("")
     parts.append(table(
         ["File", "type", "description"],

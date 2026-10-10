@@ -482,8 +482,8 @@ def prova():
         v("elenco per destinatario e stato", [d["id"] for d in elenco(stato="nuovo", a="capo-prova")] == [i["id"]])
         p = prendi(i["id"], "capo-prova")
         v("preso da capo-prova", p["stato"] == "preso" and p["preso_da"] == "capo-prova" and p["preso_il"])
-        solleva("non si prende due volte", GiaPreso, prendi, i["id"], "commercialista")
-        solleva("risposta da chi non ha preso rifiutata", IncaricoNonValido, rispondi, i["id"], "commercialista", "io")
+        solleva("non si prende due volte", GiaPreso, prendi, i["id"], "esperto-prova")
+        solleva("risposta da chi non ha preso rifiutata", IncaricoNonValido, rispondi, i["id"], "esperto-prova", "io")
         r = rispondi(i["id"], "capo-prova", "Ieri 1.234 euro (prova)", token_stimati=1200)
         v("fatto con risposta", r["stato"] == "fatto" and r["risposta"]["esito"] == "ok"
           and r["risposta"]["token_stimati"] == 1200 and r["risposta"]["da"] == "capo-prova")
@@ -557,20 +557,20 @@ def prova():
         solleva("uno scaduto non si prende", GiaPreso, prendi, s1["id"], "cruscotto-bi")
         # battiti
         battito("capo-prova", "vps", "giro delle 10")
-        battito("commercialista", "vps")
-        d = json.loads((base / "dati" / "battiti" / "commercialista.json").read_text())
+        battito("esperto-prova", "vps")
+        d = json.loads((base / "dati" / "battiti" / "esperto-prova.json").read_text())
         d["il"] = int(time.time()) - 301
-        _scrivi(base / "dati" / "battiti" / "commercialista.json", d)
+        _scrivi(base / "dati" / "battiti" / "esperto-prova.json", d)
         st = stato_pubblico()
         b = {x["agente"]: x for x in st["battiti"]}
         v("battito recente: vivo", b["capo-prova"]["vivo"] is True and b["capo-prova"]["nota"] == "giro delle 10")
-        v("battito di 301 s fa: non vivo", b["commercialista"]["vivo"] is False)
+        v("battito di 301 s fa: non vivo", b["esperto-prova"]["vivo"] is False)
         v("stato_pubblico: chiavi e contatori", set(st) == {"incarichi", "battiti", "contatori"}
           and st["contatori"]["fatto"] == 1 and st["contatori"]["scaduto"] == 2
           and st["contatori"]["totale"] == len(_tutti()) and st["contatori"]["agenti_vivi"] == 1
           and len(st["incarichi"]) <= 50)
         for n in range(55):
-            nuovo("assistente", "garante-dati", f"riempio {n}")
+            nuovo("assistente", "specialista-prova", f"riempio {n}")
         st = stato_pubblico()
         v("stato_pubblico: al massimo 50, i più recenti", len(st["incarichi"]) == 50
           and st["incarichi"][0]["creato"] >= st["incarichi"][-1]["creato"])

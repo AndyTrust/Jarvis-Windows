@@ -137,7 +137,6 @@ def main():
 
     # 1. strumenti
     dest = base / "strumenti"
-    if (base / "DUE-DUE" / "strumenti").is_dir(): dest = base / "DUE-DUE" / "strumenti"
     esistono = dest.is_dir() and any(dest.glob("*.py"))
     print(f"{'✓' if esistono else '+'} strumenti deterministici → {dest.relative_to(base)}/")
     if fai and not esistono:

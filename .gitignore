@@ -172,6 +172,3 @@ authorized_keys
 **/sincro/copie/
 **/sincro/ultimo.json
 **/report-missioni/
-
-# controllo pulizia: elenchi locali con i tuoi nomi
-CONTROLLA-PULIZIA-*.local.txt
