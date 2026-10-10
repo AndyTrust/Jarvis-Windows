@@ -1,0 +1,3 @@
+# Chiave pubblica Ed25519 dei codici di assistenza del TUO tecnico (64 caratteri esadecimali sulla riga sotto).
+# Nella distribuzione è vuota: senza chiave nessun codice di assistenza viene accettato.
+# Serve solo a verificare i codici: non permette di crearne. Vedi docs/ASSISTENZA.md.

@@ -1,0 +1,14 @@
+{
+  "_nota": "Esempio. Ogni regola e' un nome di strumento (anche con *) oppure {tool, contiene} dove contiene e' una regex sul comando o sul percorso. deny vince su allow. Agente * vale per tutti. Quello che non e' nominato segue le regole di sempre (default: invariato).",
+  "default": "invariato",
+  "agenti": {
+    "*": {
+      "allow": [],
+      "deny": [{"tool": "Bash", "contiene": "\\.claude/memoria"}]
+    },
+    "analista-finanziario": {
+      "allow": ["Read", "Grep"],
+      "deny": ["mcp__*__send_*", "mcp__*__delete_*"]
+    }
+  }
+}

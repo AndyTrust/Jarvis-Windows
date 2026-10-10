@@ -1,0 +1,16 @@
+# Librerie Python di Jarvis Privato Windows (le installa INSTALLA.ps1 nell'ambiente .venv della cartella di Jarvis)
+# Il pannello (command-center/server.py) usa solo la libreria standard: queste servono a missioni, voce e orb.
+
+claude-agent-sdk>=0.2.161      # le missioni: un orchestratore che lancia gli agenti in parallelo
+faster-whisper==1.2.1          # ascolto: trascrizione locale (modello «small», italiano)
+kokoro-onnx==0.4.7             # voce italiana Sara, in locale
+misaki==0.7.4                  # fonemi per Kokoro
+numpy
+scipy                         # filtro dei bassi sotto 80 Hz (ventole, vibrazioni) prima di Whisper
+noisereduce                   # toglie il rumore costante di sottofondo (ronzio, condizionatore) prima di Whisper
+onnxruntime
+soundfile
+sounddevice                    # microfono e altoparlanti
+pynput                         # Shift destro per accendere e spegnere l'ascolto
+pillow                         # l'orb e le icone
+edge-tts                       # voce primaria (serve internet); Kokoro Sara resta il ripiego offline

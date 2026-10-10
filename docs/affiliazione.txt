@@ -1,0 +1,8 @@
+# Link di affiliazione per la VPS FACOLTATIVA (una sola fonte).
+# È un link di affiliazione: chi compra passando da qui riconosce una commissione all'autore del progetto.
+# La VPS non serve per usare Jarvis; si può scegliere qualunque altro fornitore.
+# Per cambiarlo: scrivi il nuovo link sulla prima riga senza «#» e lancia
+#   powershell -ExecutionPolicy Bypass -File .\scripts\imposta-affiliazione.ps1
+# (oppure: python scripts\imposta_affiliazione.py). Lo script lo mette in tutti i documenti al posto del segnaposto
+# {{LINK_AFFILIAZIONE_VPS}} o del link applicato prima (ricordato in docs/affiliazione-applicata.txt).
+https://www.hostinger.com/it/prezzi?REFERRALCODE=ITALOMARZIANO

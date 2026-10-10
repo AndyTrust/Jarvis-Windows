@@ -1,0 +1,174 @@
+# Questo repository contiene SOLO codice e modelli. Dati personali, memoria e segreti non ci entrano mai.
+.venv/
+__pycache__/
+*.pyc
+*.log
+installazione.log
+
+# file personali che l'installatore crea in ~/jarvis (qui non dovrebbero comparire, ma se succede restano fuori)
+utente.json
+configurazione.json
+spazi.json
+pannello.json
+Scadenze personali.md
+report-missioni/
+.claude/memoria*/
+.claude/settings.local.json
+sincro/copie/
+sincro/ultimo.json
+backtalk/.jarvis_status*
+command-center/lavori/
+command-center/missioni/
+command-center/missioni_archivio/
+command-center/catena-stato.json
+# assistenza a distanza: i dati veri del tecnico, il credito e il registro restano solo sul PC
+command-center/assistenza.json
+command-center/assistenza-registro.json
+command-center/assistenza-registro.json.*
+command-center/assistenza.log
+
+# segreti
+.env
+.env.*
+*.pem
+*.key
+id_*
+token*
+
+# modelli voce (si scaricano con l'installatore)
+*.onnx
+*.bin
+
+# cache dei profili degli agenti (la scrive il pannello)
+command-center/cache-profili/
+log/
+
+# ===== segreti e dati: MAI nel repository (blocco standard, 30/09/2026) =====
+# credenziali
+.env
+.env.*
+!.env.esempio
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa*
+id_ed25519*
+*.token
+*credentials*.json
+*service-account*.json
+# database, copie e dati di chi lo usa
+*.sql
+*.sql.gz
+*.dump
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+*.bak-*
+backup/
+backups/
+filestore/
+dati-cliente/
+clienti/
+# log, cache, ambienti, editor, sistema
+*.log
+logs/
+__pycache__/
+*.pyc
+.venv/
+venv/
+node_modules/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# dati che il Command Center, la voce e l'orb scrivono mentre lavorano (02/10/2026): non sono codice
+**/command-center/attivita-agenti.jsonl*
+**/command-center/pannello.json.prev
+**/command-center/modifiche-agenti.jsonl
+**/command-center/gruppi-archiviati.json
+**/command-center/frequenti.json
+**/command-center/sessioni-nomi.json
+**/command-center/sessioni_motori.json
+**/command-center/_backup_*/
+**/strumenti/sessione_voce.json
+**/strumenti/stato_voce.json
+**/strumenti/orb_posizione.json
+**/strumenti/*.log
+**/backtalk/chat.jsonl
+**/backtalk/.esterno_in
+**/backtalk/.jarvis_status*
+**/.claude/memoria*/
+
+# super app (04/10/2026): registro delle decisioni, costi e regole personali. Si scrivono sul PC di chi lavora, non sono codice.
+# Il modello da copiare e' command-center/policy.esempio.json.
+**/command-center/audit-azioni.jsonl*
+**/command-center/budget-agenti.json
+**/command-center/policy.json
+
+# ===== distribuzione neutra (2026-10-10): profilo, risposte di avvio, memoria condivisa, chiavi =====
+# profilo e risposte di chi installa (vivono in %USERPROFILE%\.jarvis e %USERPROFILE%\jarvis, mai qui)
+.jarvis/
+risposte-avvio.json
+installato.json
+percorsi.json
+stato-ganci.json
+stato-ganci.log
+CLONE.txt
+# memoria condivisa, vault e diari: dati personali
+Jarvis-Memoria/
+**/Jarvis-Memoria/
+vault/
+.obsidian/
+**/Diario/
+**/Sessioni/
+**/memory/
+**/MEMORY.md
+# modelli personali: entrano solo i modelli (.tpl) e gli esempi, mai file compilati con dati veri
+modelli-personali/**
+!modelli-personali/**/
+!modelli-personali/**/*.tpl
+!modelli-personali/**/*.esempio.json
+# chiavi e credenziali in altri formati
+.env.jarvis
+*.env
+*.ppk
+*.kdbx
+*.ovpn
+*.gpg
+*.asc
+known_hosts
+authorized_keys
+*secret*
+*segreti*
+!**/segreti*.md
+# copie di sicurezza, conflitti e residui delle fusioni
+*.prima-*
+*.bak-jarvis-*
+*.da-fondere
+.da-fondere/
+*.orig
+*.rej
+*.tmp
+*.lock
+*.conflict*
+# le regole «command-center/…» qui sopra valgono dalla radice: nel repository il codice sta in app/ (2026-10-10)
+**/command-center/configurazione.json
+**/command-center/spazi.json
+**/command-center/pannello.json
+**/command-center/lavori/
+**/command-center/missioni/
+**/command-center/missioni_archivio/
+**/command-center/catena-stato.json
+**/command-center/assistenza.json
+**/command-center/assistenza-registro.json*
+**/command-center/assistenza.log
+**/command-center/cache-profili/
+**/sincro/copie/
+**/sincro/ultimo.json
+**/report-missioni/

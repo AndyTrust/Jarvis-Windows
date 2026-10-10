@@ -1,0 +1,30 @@
+{
+  "_nota": "Assistenza a distanza a pagamento. Copia questo file in assistenza.json (stessa cartella) e riempi i campi «DA COMPILARE» con i dati veri del tecnico: solo in assistenza.json, che resta su questo PC (git e gli aggiornamenti non lo toccano), mai qui. Il cliente vede solo il costo orario e sceglie le ore: coordinate, email e WhatsApp compaiono solo nei collegamenti e nella pagina generati dopo quella scelta. Guida: docs/ASSISTENZA.md.",
+  "abilitata": false,
+  "tariffa_ora_euro": 50,
+  "ricarica_minima_euro": 12.5,
+  "ricarica_minima_minuti": 15,
+  "scatto_minuti": 15,
+  "scatto_euro": 12.5,
+  "primo_blocco_minuti": 15,
+  "anticipo_scatto_secondi": 60,
+  "scadenza_codice_ore": 48,
+  "ore_max": 8,
+  "wsl_distro": "",
+  "tecnico": {
+    "nome": "DA COMPILARE",
+    "email": "DA COMPILARE",
+    "telefono": "DA COMPILARE",
+    "whatsapp": "DA COMPILARE (solo cifre con prefisso, es. 391234567890)"
+  },
+  "pagamento": {
+    "metodo": "Bonifico",
+    "intestatario": "DA COMPILARE",
+    "iban": "DA COMPILARE",
+    "bic": "DA COMPILARE",
+    "banca": "DA COMPILARE",
+    "bic_banca_corrispondente": "",
+    "valuta": "EUR",
+    "causale": "assistenza a distanza"
+  }
+}

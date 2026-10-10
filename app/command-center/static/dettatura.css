@@ -1,0 +1,25 @@
+/* Dettatura e chiamata nella chat: come il Mac. Nella barra di scrittura restano tre tondi: microfono, telefono verde, invia.
+   Il vecchio tasto "Voce" del motore desktop si nasconde (resta Maiusc destro e la pagina Voce); lo STOP compare solo quando Jarvis lavora. */
+#btn-voce { display: none !important; }
+#btn-stop:not(.attivo) { display: none; }
+
+.ponte-mic { width: 44px; height: 44px; min-width: 44px; border-radius: 50%; padding: 0; flex: none; display: grid; place-items: center;
+  background: var(--rialzo-2); border: 1px solid var(--linea-3); color: var(--testo); cursor: pointer; }
+.ponte-mic svg { width: 21px; height: 21px; }
+.ponte-mic:hover { border-color: var(--testo); }
+.ponte-mic:focus-visible { outline: 2px solid var(--accento); outline-offset: 2px; }
+.ponte-mic.ascolta { background: var(--rosso); border-color: var(--rosso); color: #fff; box-shadow: 0 0 0 4px rgba(227, 70, 113, .25); }
+@media (prefers-reduced-motion: no-preference) { .ponte-mic.ascolta { animation: dett-pulsa 1.2s ease-in-out infinite; } }
+@keyframes dett-pulsa { 50% { box-shadow: 0 0 0 9px rgba(227, 70, 113, .12); } }
+.pillola .ponte-mic { align-self: flex-end; }
+
+.dettatura-nota { display: block; margin: 6px 14px 0; font-size: 12px; color: var(--tenue); }
+.dettatura-nota.errore { color: var(--rosso); }
+
+/* trascrizione sul PC in corso: il microfono e' fermo e gira un piccolo cerchio */
+.ponte-mic.pensa { cursor: progress; opacity: .85; }
+.ponte-mic.pensa svg { opacity: .35; }
+.ponte-mic.pensa::after { content: ""; position: absolute; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--testo); border-top-color: transparent; }
+.ponte-mic { position: relative; }
+@media (prefers-reduced-motion: no-preference) { .ponte-mic.pensa::after { animation: dett-gira .9s linear infinite; } }
+@keyframes dett-gira { to { transform: rotate(360deg); } }

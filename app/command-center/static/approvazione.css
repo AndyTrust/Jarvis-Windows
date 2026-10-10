@@ -1,0 +1,17 @@
+/* Modo approvazione: barra "Approva ed esegui / Rifiuta" sotto la risposta dell'assistente.
+   Usa le variabili di app.css. Nessuna animazione. */
+.modo-chat button[data-modo="approvazione"].attivo { color: var(--giallo); background: rgba(217, 138, 0, .18); box-shadow: 0 0 10px rgba(217, 138, 0, .22); }
+
+.appr-barra { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; padding: 6px 8px;
+  border: 1px solid var(--linea-2); border-radius: var(--r-lg); background: var(--chrome); font-size: 12px; }
+.appr-barra .appr-et { color: var(--tenue); margin-right: auto; }
+.appr-barra button { font-size: 12px; padding: 4px 12px; border-radius: var(--r-pill); border: 1px solid var(--linea-3);
+  background: var(--fondo); color: var(--testo); cursor: pointer; }
+.appr-barra button:disabled { cursor: default; opacity: .55; }
+.appr-barra .appr-si:not(:disabled):hover { border-color: var(--verde); color: var(--verde); }
+.appr-barra .appr-no:not(:disabled):hover { border-color: var(--rosso); color: var(--rosso); }
+.appr-barra.approvata { border-color: var(--verde); }
+.appr-barra.rifiutata { border-color: var(--rosso); }
+.appr-barra .appr-esito { font-weight: 600; margin-right: auto; }
+.appr-barra.approvata .appr-esito { color: var(--verde); }
+.appr-barra.rifiutata .appr-esito { color: var(--rosso); }

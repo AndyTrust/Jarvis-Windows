@@ -1,0 +1,12 @@
+{
+  "_nota": "Assistenza a distanza (facoltativa): i valori PUBBLICI del server del TUO tecnico. Nella distribuzione sono vuoti: senza, il tasto «Attiva assistenza» dice che l'assistenza non è configurata e non apre nessun collegamento. Chi offre assistenza compila host, known_hosts (riga di ssh-keyscan) e chiave_tecnico (chiave pubblica ssh-ed25519). Vedi docs/ASSISTENZA.md.",
+  "host": "",
+  "porta": 22,
+  "utente": "assistenza",
+  "known_hosts": "",
+  "chiave_tecnico": "",
+  "porte": [
+    47000,
+    47999
+  ]
+}

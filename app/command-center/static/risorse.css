@@ -1,0 +1,8 @@
+/* Risorse (CPU e RAM) nel piede della colonna sinistra: testo semplice e un puntino colorato. */
+.lato-piede { display: flex; align-items: center; gap: 14px; }
+.ris-voce { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.ris-punto { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--grigio, #9aa0a6); }
+.ris-voce.verde .ris-punto { background: #3fa266; }
+.ris-voce.ambra .ris-punto { background: #e0a21a; }
+.ris-voce.rosso .ris-punto { background: #e34671; }
+.ris-voce.nd { opacity: .65; }

@@ -1,0 +1,31 @@
+# Parole ammesse da CONTROLLA-PULIZIA.py (approvate il 2026-10-05). Una regex per riga, senza distinzione fra maiuscole e
+# minuscole. Prima di cercare i MARCATORI si tolgono dalla riga i pezzi che combaciano con una di queste: se la riga resta
+# pulita, passa. Nomi di persone, aziende, domini, bot e agenti personali restano vietati: per quelli porta_su_windows.py
+# sostituisce, non ammette.
+#
+# Perché: il codice nuovo (controlli, connessioni, notifiche, incarichi, aggiorna-memoria) nomina strumenti e prodotti
+# per quello che sono. Sono nomi tecnici generici, non dati personali.
+#
+# server, macchina remota (anche dentro nomi come LettoreVPS, vps-tuo): le connessioni (strumenti/connessioni.py), il portiere, le sentinelle e i ponti la chiamano così
+vps
+# il CRM su cui lavora il PC (Odoo): connettore, pagine del registro, contratti
+\bodoo\b
+odoo[-_][a-z0-9_-]+
+# «voodoo constants» nella guida writing-skills
+voodoo
+# canale di notifica: nome del servizio, nessun token o chat id (quelli stanno in .env.jarvis del PC)
+telegram
+# nominati solo come tecnologie dismesse (obsoleti.json della skill aggiorna-memoria) o cartelle da saltare
+supabase
+\basterisk\b
+# il capogruppo degli agenti nella cartella OneDrive del CRM, l'unico progetto del PC (incarichi.py, prove)
+\bceo-ai\b
+# il prefisso tecnico dei capigruppo, minuscolo (file ceo-*.md, chiave «ceo» di sincro/controlla.py): è così che si
+# riconosce ceo-ai. Solo minuscolo: «CEO» nel testo lo sostituisce porta_su_windows.py con «capogruppo»
+(?-i:\bceo\b)
+# disegni SVG delle icone: i numeri dei tracciati sembrano indirizzi IP (2026-10-10)
+<path d="[^"]*"
+# chiave privata FINTA scritta dalle prove dell'assistenza (2026-10-10)
+-----BEGIN OPENSSH PRIVATE KEY-----\S*FINTA
+# il link di affiliazione della VPS facoltativa, dichiarato come tale (docs/affiliazione.txt, 2026-10-10)
+https://www\.hostinger\.com/it/prezzi\?REFERRALCODE=ITALOMARZIANO
