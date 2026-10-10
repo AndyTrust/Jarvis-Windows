@@ -1,7 +1,7 @@
 // Attività in diretta nella chat (2026-10-03, contratto in command-center/CONTRATTO-approvazioni.md, sezione 2).
 //
 // Al posto dei tre puntini «sta scrivendo» la bolla del lavoro in corso mostra cosa sta facendo
-// Jarvis adesso: «leggo posta.py», «lancio il giro Odoo»… con un'icona per tipo (con la parola per
+// Jarvis adesso: «leggo posta.py», «lancio il giro dei dati»… con un'icona per tipo (con la parola per
 // i lettori di schermo), l'esito (in corso / ok / errore) e l'ultima voce evidenziata. Si vedono le
 // ultime 3; «mostra tutte» apre l'elenco intero (max 50, quelle che manda il server).
 //

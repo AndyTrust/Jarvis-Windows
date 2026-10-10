@@ -17,7 +17,7 @@
   "_siti": "Quello che vuoi tenere d'occhio: nome e indirizzo. Il pannello li interroga e mostra il codice di risposta.",
   "siti": {
     "Il mio sito": "https://esempio.it",
-    "n8n": "https://n8n.esempio.it/healthz"
+    "automazioni": "https://automazioni.esempio.it/healthz"
   },
 
   "_collegamenti": "Pulsanti che aprono un indirizzo nel browser.",

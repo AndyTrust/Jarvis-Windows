@@ -105,7 +105,7 @@ for etichetta, p, lim in pezzi:
 print(f"\n## Percorsi\n- Cartella Jarvis: {JARVIS}\n- Memoria di {UTENTE}: {MEM_U}\n"
       "- Command Center: http://127.0.0.1:@@PORTA@@\n"
       "- Consultazione chirurgica: leggi il grafo/indice, poi UN solo file .md alla volta.")
-# 2026-10-10: la memoria condivisa (collega_memoria.py) e lo stato dei progetti (gancio stato_progetti.py)
+# 2026-10-10: la memoria condivisa (collega_memoria.py) e lo stato dei progetti (ganci stato_avanzamento.py e conferma_salva.py)
 try:
     PERC = json.loads((H / ".jarvis" / "percorsi.json").read_text(encoding="utf-8-sig"))
 except (OSError, ValueError):

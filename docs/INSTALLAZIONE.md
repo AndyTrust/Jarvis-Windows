@@ -44,7 +44,7 @@ Modello: `modelli-personali\risposte-avvio.esempio.json`. Campi:
 | `utente.nome`, `assistente.nome` | «Mario», «Jarvis» |
 | `lingua`, `tono`, `fuso_orario` | «italiano», «diretto e sintetico», «Europe/Rome» |
 | `lavoro.ruolo`, `lavoro.uso`, `vita_privata` | testi liberi |
-| `spazi` | `[{"nome": "Negozio", "cartelle": ["%USERPROFILE%\\Documents\\Negozio"]}]` |
+| `avvio`, `primo_progetto`, `creazione` | «zero» o «primo»; `{"nome": "<nome-progetto>", "cartella": "..."}` o `null`; «piano» o «automatica» (si parte sempre senza progetti precaricati) |
 | `memoria.cartella`, `memoria.tipo` | percorso; `nuova`, `onedrive` o `obsidian` |
 | `harness` | `["claude-code", "codex", "gemini", "cursor"]` |
 | `voce.attiva`, `telefono.attivo`, `vps.usa` | sì o no |

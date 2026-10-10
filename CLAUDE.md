@@ -34,8 +34,11 @@ Una per volta, in questo ordine. Tra parentesi il valore predefinito e il campo 
 3. **Fuso orario.** (quello di Windows, es. Europe/Rome) → `fuso_orario`
 4. **Che lavoro fai e per cosa userai l'assistente?** Lavoro, vita privata o tutti e due. → `lavoro.ruolo`, `lavoro.uso`,
    `vita_privata`
-5. **Quali progetti o cartelle vuoi che segua?** Ogni progetto diventa uno SPAZIO di lavoro: un nome e una o più
-   cartelle del PC. Gli spazi non si mescolano. (uno spazio «Generale» senza cartelle) → `spazi`
+5. **Vuoi partire da zero o creare subito il primo progetto?** Da zero (predefinito): nessun progetto, spazio o agente;
+   nascono quando li nomini. Se il primo: chiedi solo il nome e, se c'è già, la cartella (verifica con `Get-ChildItem`).
+   Non chiedere altri progetti. Poi: quando nominerai un progetto nuovo, prima ti mostro il piano (predefinito) o lo
+   creo subito? → `avvio` («zero» o «primo»), `primo_progetto` ({"nome", "cartella"} o null), `creazione` («piano» o
+   «automatica»)
 6. **Dove tengo la memoria condivisa?** È la cartella che Claude Code, l'assistente e gli altri programmi leggono e
    scrivono insieme. Proponi: `%USERPROFILE%\Jarvis-Memoria` (predefinita), una cartella in OneDrive se c'è (così la
    vedi da più PC), oppure un vault di Obsidian che la persona ha già. Guarda tu se esistono `%USERPROFILE%\OneDrive*`
@@ -67,7 +70,8 @@ Prima di toccare qualunque cosa mostra:
 - il contenuto di `risposte-avvio.json` che scriverai (senza segreti);
 - cosa installerà `INSTALLA.ps1` (Python 3.12 e eSpeak NG con winget se mancano, librerie Python, voce se scelta,
   file personali dai modelli, skill e ganci di Claude Code con copia di sicurezza di `settings.json`, memoria condivisa
-  con le giunzioni, collegamenti sul Desktop, attività pianificate «Jarvis Avvio», «Jarvis Battito» e «Jarvis Giro notturno»);
+  con le giunzioni, collegamenti sul Desktop, attività pianificate «Jarvis Avvio», «Jarvis Battito», «Jarvis Pulizia» e
+  «Jarvis Giro notturno»; nessun progetto, salvo il primo se l'ha chiesto);
 - cosa NON toccherà (le cartelle di `non_toccare`, i ganci già presenti in `settings.json`, i dati nelle cartelle
   `memory` di Claude Code: vengono uniti, mai cancellati);
 - come si torna indietro (`docs\DISINSTALLARE.md`).
@@ -78,10 +82,33 @@ Poi chiedi: «Approvi il piano?». Senza un sì chiaro non esci dalla modalità 
 
 - Il profilo vive in `%USERPROFILE%\jarvis\utente.json` e in `%USERPROFILE%\jarvis\CLAUDE.md`. Nessun nome è scritto
   nel codice: il nome della persona e quello dell'assistente si leggono da lì.
-- La memoria condivisa è quella di `%USERPROFILE%\.jarvis\percorsi.json`. Ogni spazio ha `Stato.md` (FATTO, DA FARE,
-  ERRORI, data e ora) aggiornato da solo dal gancio `stato_progetti.py`. Quando chiudi un lavoro scrivi nella risposta
-  righe `FATTO: …`, `DA FARE: …`, `ERRORE: …`.
-- La skill `aggiorna-memoria` è installata in `%USERPROFILE%\.claude\skills\aggiorna-memoria`.
+- La memoria condivisa è quella di `%USERPROFILE%\.jarvis\percorsi.json`: `Comune\Memoria.md` (porta d'ingresso),
+  `<spazio>\Stato.md`, `Diario\AAAA-MM-GG.md`, `Report\`, `Sessioni\`, `Claude\projects\`. Si aggiorna da sola:
+  il gancio `stato_avanzamento.py` (Stato.md e diario del giorno, a fine risposta, compattazione e fine sessione), il
+  gancio `conferma_salva.py` (alle conferme «ok», «perfetto», «chiuso»… chiede il salvataggio di `aggiorna-memoria`)
+  e i ganci git dei progetti a ogni commit e push. Il FATTO / DA FARE / ERRORI viene dalla memoria del progetto
+  (`.claude/memoria/MEMORIA.md`, scritta da `aggiorna-memoria`) e dai diari degli agenti. Guida: `docs\wiki\Memoria-condivisa.md`.
+- Le skill `aggiorna-memoria` e `nuovo-progetto` sono installate in `%USERPROFILE%\.claude\skills\`.
+
+## Progetti e agenti: l'assistente si programma da solo
+
+L'assistente parte **senza progetti, spazi, capogruppo né specialisti**. Nascono dalle richieste del proprietario.
+La fonte unica è `command-center\spazi.json` + le schede in `<cartella del progetto>\.claude\agents\` + le cartelle.
+Lavagna, menu agenti, pagine del Command Center e `Stato.md` si rileggono da lì da soli (in uno o due secondi).
+
+- **Il proprietario nomina un progetto che non c'è** («apri il progetto X», «iniziamo …», «seguimi anche Y») o fa una
+  richiesta che non rientra in nessuno spazio: usa la skill `nuovo-progetto`. Controlla con
+  `python strumenti\crea_progetto.py --elenco`; se manca, proponi in poche righe cosa crei (uscita di `--prova`),
+  la prima volta in modalità piano, poi in automatico se in `%USERPROFILE%\.jarvis\risposte-avvio.json` c'è
+  `"creazione": "automatica"`; crea con `strumenti\crea_progetto.py` e verifica.
+- **Ogni progetto ha un capogruppo** (`<id>-ceo`). Gli specialisti li crea il capogruppo, uno alla volta, con
+  `strumenti\crea_agente.py` quando serve una competenza («mi serve qualcuno che faccia Y»). Nessun agente senza
+  missione chiara. haiku esegue, sonnet ricerca, scrive e verifica, opus solo programmazione.
+- **Ogni agente ha il suo diario** (`<cartella>\.claude\memoria\agenti\<nome>.md`: Fatto, Da fare, Errori commessi da
+  non ripetere): quando lanci un agente metti nel compito l'uscita di `python strumenti\quaderno.py leggi <nome>`;
+  quando torna, salva le sue righe con `quaderno.py raccogli <nome> --da <file>`.
+- I file del proprietario per un progetto stanno in `<cartella>\File\`; `Indice-file.md` si aggiorna da solo.
+- Comandi: `/nuovo-progetto <nome>`, `/nuovo-agente <progetto> <ruolo>`. Guida: `docs\wiki\Progetti-e-agenti.md`.
 
 ## Regole per chi lavora su questo repository
 

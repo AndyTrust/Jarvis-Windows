@@ -1,5 +1,5 @@
-// Gli «Incarichi» del Command Center (2026-10-04, docs/incarichi-contratto.md): la coda sulla VPS fra Jarvis di il titolare
-// e gli agenti del CRM. In alto i battiti degli agenti, poi gli ultimi incarichi, il modulo per mandarne uno e il tasto
+// Gli «Incarichi» del Command Center (2026-10-04, docs/incarichi-contratto.md): la coda sulla VPS fra l'assistente del proprietario
+// e gli agenti dei progetti. In alto i battiti degli agenti, poi gli ultimi incarichi, il modulo per mandarne uno e il tasto
 // «Annulla» sui «nuovo». Dati: GET/POST /api/incarichi (strumenti/incarichi.py, via ssh: può durare qualche secondo).
 // Come piani.js: si aggancia da sola al menu, al foglio del telefono e a TITOLI. Testi sempre con textContent.
 (function incarichi() {
@@ -134,7 +134,7 @@
     return el("li", { class: "in-scheda in-s-" + x.stato }, testa, ...corpo);
   }
   function opzioniA() {
-    const nomi = [...new Set(((S.dati && S.dati.battiti) || []).map((b) => b.agente).filter((n) => n && n !== FASE2 && n !== "jarvis-titolare"))].sort();
+    const nomi = [...new Set(((S.dati && S.dati.battiti) || []).map((b) => b.agente).filter((n) => n && n !== FASE2 && n !== "assistente"))].sort();
     const scelto = S.bozza.a || N.a.value;
     N.a.textContent = "";
     N.a.append(el("option", { value: "" }, "Scegli l'agente…"));
@@ -169,7 +169,7 @@
     N.tipo = el("select", { id: "in-tipo", onchange: () => { S.bozza.tipo = N.tipo.value; } },
       ...Object.entries(TIPI).map(([v, t]) => el("option", { value: v }, t)));
     N.tipo.value = S.bozza.tipo;
-    N.testo = el("textarea", { id: "in-testo", rows: "5", maxlength: String(MAX), placeholder: "Cosa chiedi all'agente (in sola lettura: risponde, non scrive nel CRM)",
+    N.testo = el("textarea", { id: "in-testo", rows: "5", maxlength: String(MAX), placeholder: "Cosa chiedi all'agente (in sola lettura: risponde, non scrive nei file del progetto)",
       oninput: () => { S.bozza.testo = N.testo.value; N.conta.textContent = N.testo.value.length + " / " + MAX; } });
     N.conta = el("span", { class: "in-conta" });
     N.manda = el("button", { type: "submit", class: "in-btn in-si" }, "Manda l'incarico");
@@ -182,12 +182,12 @@
       el("div", { class: "in-piede" }, N.conta, N.manda));
     N.vista = el("section", { class: "vista vista-incarichi", "data-vista": "incarichi", "aria-labelledby": "in-titolo-pagina" },
       el("div", { class: "in-intro" }, el("h2", { id: "in-titolo-pagina", class: "in-pagina" }, "Incarichi"),
-        el("p", { class: "in-sotto" }, "La coda sulla VPS: mandi una domanda o un lavoro a un agente del CRM, lui lo prende entro un paio di minuti e risponde qui.")),
+        el("p", { class: "in-sotto" }, "La coda sul server (facoltativo): mandi una domanda o un lavoro a un agente di un progetto, lui lo prende entro un paio di minuti e risponde qui.")),
       N.errore, N.avviso,
       el("h3", { class: "in-sez" }, "Agenti"), N.battiti,
       modulo,
       el("h3", { class: "in-sez" }, "Ultimi incarichi"), N.lista,
-      el("p", { class: "in-nota" }, "Fase 1: gli agenti lavorano in sola lettura, non scrivono nel CRM e non mandano messaggi. Gli incarichi si mandano solo dal Mac."));
+      el("p", { class: "in-nota" }, "Fase 1: gli agenti lavorano in sola lettura, non scrivono nei progetti e non mandano messaggi."));
     main.append(N.vista);
     disegna();
     return true;

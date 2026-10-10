@@ -31,9 +31,9 @@ def prova(nome, ok, dettaglio=""):
     print(("✅ " if ok else "❌ ") + nome + ("" if ok else f"  [{dettaglio}]"))
 
 
-attivita.registra("richiesta", "t1", "jarvis", "crm:ceo-ai", "controlla le fatture", fonte="hook", cwd="/segreto", sessione="s1")
-attivita.registra("risposta", "t1", "crm:ceo-ai", "jarvis", "fatto", fonte="hook", esito="tutto a posto", durata_s=3.2)
-attivita.registra("richiesta", "l:1", "utente", "crm:ceo-ai", "testo privato della chat", fonte="chat")
+attivita.registra("richiesta", "t1", "jarvis", "alfa:alfa-ceo", "controlla le fatture", fonte="hook", cwd="/segreto", sessione="s1")
+attivita.registra("risposta", "t1", "alfa:alfa-ceo", "jarvis", "fatto", fonte="hook", esito="tutto a posto", durata_s=3.2)
+attivita.registra("richiesta", "l:1", "utente", "alfa:alfa-ceo", "testo privato della chat", fonte="chat")
 attivita.registra("richiesta", "s:1", "sentinella", "jarvis", "rapporto", fonte="hook")
 attivita.registra("richiesta", "m:1", "jarvis", "memoria", "cerca", fonte="hook")
 
@@ -44,7 +44,7 @@ prova("1a il registro locale ha tutte e 5 le righe", len(locale) == 5, len(local
 prova("1b il file condiviso ha solo le 2 righe fra agenti", [c["id"] for c in cond] == ["t1", "t1"], cond)
 prova("1c formato comune: v, ts, ev, id, da, a, testo, fonte, pc",
       all({"v", "ts", "ev", "id", "da", "a", "testo", "fonte", "pc"} <= set(c) for c in cond))
-prova("1d nomi brevi negli agenti (ceo-ai, non crm:ceo-ai)", cond and cond[0]["a"] == "ceo-ai", cond[:1])
+prova("1d nomi brevi negli agenti (alfa-ceo, non alfa:alfa-ceo)", cond and cond[0]["a"] == "alfa-ceo", cond[:1])
 prova("2  niente chat dell'utente, sentinella o memoria nel condiviso",
       not any(c.get("da") in attivita.PRIVATI or c.get("a") in attivita.PRIVATI for c in cond))
 prova("3  niente cwd, sessione, missione nel condiviso", not any({"cwd", "sessione", "missione"} & set(c) for c in cond))

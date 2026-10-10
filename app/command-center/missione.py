@@ -124,7 +124,7 @@ AGENTI = {}
 MODELLO = {}          # nome esperto -> modello del profilo
 CAPOGRUPPI = set()
 PROG_DI = {}          # nome esperto (come lo vede l'SDK) -> id del suo progetto (2026-10-02)
-NOME_VERO = {}        # «crm-revisore» (nome reso unico) -> «revisore» (nome del profilo)
+NOME_VERO = {}        # «progetto-revisore» (nome reso unico) -> «revisore» (nome del profilo)
 
 
 def chiave(nome):
@@ -790,7 +790,7 @@ async def main():
     salva_agenti()
     aggiunta = (istruzioni_ultime(elenco) if ULTIME else istruzioni_catena(elenco)) if CATENA else ""
     # revisione 2 (2026-10-03): le missioni in lettura o «chiedi a l'utente» (dal sito) non caricano i settings di
-    # progetto (le «allow» del CRM su OneDrive come Bash(rm -rf *) deciderebbero prima di conferma()), e le «allow»
+    # progetto (le «allow» di un progetto come Bash(rm -rf *) deciderebbero prima di conferma()), e le «allow»
     # dell'utente diventano «ask»: così ogni strumento passa da conferma(). Il CLAUDE.md della cartella arriva con
     # add_dirs + CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD; gli esperti sono già in «agents».
     protetta = LETTURA or bool(CONF.get("chiedi_tutto"))

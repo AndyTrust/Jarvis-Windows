@@ -86,7 +86,7 @@ def timbra(p: Path, quando=None):
     if aveva and not quando:
         dichiarato = datetime.fromisoformat(m0.group(2).replace("T", " ")[:16])
         # 19/09/2026: un'ora dichiarata NEL FUTURO (16:34 scritto alle 10:15 nel
-        # CLAUDE.md del CRM, 17:06 nella memoria) bloccava ogni timbro successivo,
+        # CLAUDE.md di un progetto, 17:06 nella memoria) bloccava ogni timbro successivo,
         # perché il file sembrava sempre «già aggiornato». Il futuro non vale.
         if reale <= dichiarato <= datetime.now():
             return False

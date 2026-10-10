@@ -2,7 +2,7 @@
 """Un solo punto d'ingresso per i report e gli avvisi a l'utente (2026-10-05, programmatore-notifiche).
 
 Decisione di l'utente del 05/10/2026: «il report deve arrivarmi con notifica su una chat apposita di Jarvis
-e del Posta nel CRM e nell'app Jarvis; evitare Telegram se possiamo fare tutto dal CRM; Jarvis e
+e del Posta nel Command Center e nell'app; evitare Telegram se possiamo fare tutto dal Command Center; Jarvis e
 Posta sono gli unici che mi mandano i report».
 
     from notifica import notifica

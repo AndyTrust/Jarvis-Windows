@@ -25,11 +25,10 @@ con gli agenti trascinabili nella Lavagna. **Non c'è nessun piè di pagina.**
 <Nome utente>  (nota)
      │
      ▼
-Jarvis di <utente> — orchestratore, risponde a <utente>   (nota)
-     ├──► Memoria         (nota = gruppo)  ──► archivista
-     └──► Agenti di <utente> (nota = gruppo) ──► esecutore
-                                                 esecutore ↔ archivista
-     (ogni progetto che aggiungi può avere il suo gruppo e i suoi agenti)
+<assistente> — orchestratore, risponde a <utente>   (nota)
+     (all'inizio basta così: si parte da zero)
+     └──► 📁 <nome-progetto>  (nota, nasce con il progetto) ──► <id>-ceo ──► specialisti
+          (ogni progetto creato compare da solo, con il suo capogruppo e la sua squadra)
 ```
 
 Regole:
@@ -40,7 +39,7 @@ Regole:
 3. **I fili sono i «comunica con»**: quello che colleghi nella lavagna diventa il campo `comunica:` nel profilo dell'agente, e viceversa.
    La barra dice «Profili: allineati» quando coincidono; «Aggiorna ultime modifiche» lancia una missione che li riallinea.
 4. Il flusso è **dall'alto in basso**: utente → Jarvis → gruppi → agenti. Le risposte risalgono lungo gli stessi fili.
-5. Gli agenti passano all'esecutore solo ciò che va **eseguito** (mai messaggi a nome tuo senza il tuo sì) e all'archivista ciò che va **ricordato**.
+5. Gli agenti passano all'esecutore solo ciò che va **eseguito** (mai messaggi a nome tuo senza il tuo sì) e alla memoria (diario e `Stato.md`) ciò che va **ricordato**.
 
 ## La sinapsi (la richiesta che si vede correre)
 

@@ -24,7 +24,8 @@
       const c = await r.json();
       const lista = [];
       for (const s of c.spazi || []) for (const p of s.progetti || []) for (const a of p.agenti || []) {
-        if (a && a.nome) lista.push({ key: p.id + ":" + a.nome, nome: String(a.nome), progetto: String(p.nome || p.id || "") });
+        if (a && a.nome) lista.push({ key: p.id + ":" + a.nome, nome: String(a.nome), progetto: String(p.nome || p.id || ""),
+          descr: String(a.descrizione || a.description || "") });
       }
       agenti = lista; ultimaLettura = Date.now();
     } catch (e) { /* senza catalogo non si suggerisce niente */ } finally { caricando = false; }
@@ -35,7 +36,11 @@
     const out = [];
     for (const a of agenti || []) {
       if (!COMPILATE) compila();
-      const regola = COMPILATE.find(([nome]) => nome === a.nome.toLowerCase());
+      let regola = COMPILATE.find(([nome]) => nome === a.nome.toLowerCase());
+      if (!regola && a.descr) {     // nessuna regola scritta: le parole lunghe della missione, una volta sola, peso 1
+        const radici = [...new Set((a.descr.toLowerCase().match(/[a-zàèéìòù]{6,}/g) || []).map((w) => w.slice(0, 6)))].slice(0, 25);
+        regola = [a.nome.toLowerCase(), radici.map((r) => [new RegExp(r, "i"), 1])];
+      }
       if (!regola) continue;
       let p = 0;
       for (const [re, peso] of regola[1]) if (re.test(testo)) p += peso;

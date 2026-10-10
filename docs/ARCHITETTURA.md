@@ -2,7 +2,7 @@
 
 ```
                     ┌────────────────────────── Claude Code (il cervello) ──────────────────────────┐
-  tu ──────────────►│  chat / missioni / agenti (esecutore, archivista, agenti dei tuoi progetti)    │
+  tu ──────────────►│  chat / missioni / agenti (esecutore, ricercatore-web, agenti dei progetti)  │
                     └───────▲──────────────────────────────┬──────────────────────────┬────────────┘
                             │ SessionStart                  │ ganci (hook)             │ SDK
         ~/.claude/hooks/jarvis_avvio.py                      ▼                          ▼

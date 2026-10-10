@@ -140,7 +140,7 @@ def nodo_di(ti):
     # 2026-10-02: prima il segnaposto esplicito «[AGENTE progetto:nome]» (o «[AGENTE nome]») in testa al
     # compito, poi «[INIZIO PROFILO nome]». Il percorso «agents/<nome>.md» vale solo nelle prime 400 lettere:
     # cercato in tutto il testo prendeva il primo file citato (02/10: «Ripulisce regole obsolete» → posta).
-    # 2026-10-05 (lavagna viva): anche «Agente: marketing (gruppo Progetto Due)» e «(agente: nome)», la forma
+    # 2026-10-05 (lavagna viva): anche «Agente: marketing (gruppo <nome-progetto>)» e «(agente: nome)», la forma
     # che la chat master usa davvero per riunioni e programmatori. Senza, 66 lanci su 66 del 05/10 finivano
     # su «general-purpose», che la lavagna non sa dove mettere («?:general-purpose»): niente si muoveva.
     m = (re.search(r"\[\s*AGENTE\s+([\w-]+(?::[\w-]+)?)\s*\]", testo, re.I)
@@ -152,7 +152,7 @@ def nodo_di(ti):
     nome = m.group(1)
     gruppo, _ = gruppo_di(testo)
     # il gruppo (spazio o progetto) davanti al nome: il server sceglie l'agente giusto fra omonimi
-    # («revisore» del gruppo Progetto Due = due:revisore-due)
+    # («revisore» del gruppo <nome-progetto> = <id>:revisore)
     return f"{gruppo}:{nome}" if gruppo and ":" not in nome else nome
 
 
@@ -162,7 +162,7 @@ def _slug(t):
 
 def gruppo_di(testo):
     """(gruppo, riunione): il gruppo dal percorso della riunione (…/riunioni/<gruppo>/AAAA-MM-GG/) o da
-    «(gruppo Progetto Due» nelle prime righe; riunione=True se viene dal percorso."""
+    «(gruppo <nome-progetto>» nelle prime righe; riunione=True se viene dal percorso."""
     testo = str(testo or "")
     m = re.search(r"riunioni[\\/]([\w-]+)[\\/]\d{4}-\d\d-\d\d", testo[:1500])
     if m:
@@ -268,7 +268,7 @@ def main():
         # (l'utente: «capogruppo ↔ specialisti ↔ revisore»). Il server trova il capogruppo («<gruppo>:capogruppo»)
         # e, se il gruppo non ha una scheda, torna a «jarvis».
         gruppo, riunione = gruppo_di(ti.get("prompt"))
-        if riunione and da == "jarvis" and not nodo.split(":")[-1].startswith("ceo-"):
+        if riunione and da == "jarvis" and not (nodo.split(":")[-1].endswith("-ceo") or nodo.split(":")[-1].startswith("ceo-")):
             da = f"{gruppo}:capogruppo"
         tid = dati.get("tool_use_id", "")
         agenti.insert(0, {"ts": now, "tipo": ti.get("subagent_type", ""),

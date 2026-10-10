@@ -12,9 +12,9 @@
   if (!menu) return;
   const ID = /^[a-z0-9-]{1,30}$/;
   const PARTENZA = {
-    ordine: ["chat", "lavagna", "agenti", "home", "missioni", "incarichi", "piani",
+    ordine: ["chat", "lavagna", "progetti", "agenti", "home", "missioni", "incarichi", "piani",
       "scadenze", "registro", "memoria", "connessioni", "computer", "telefono"],
-    in_barra: ["chat", "lavagna", "agenti", "home", "missioni", "incarichi", "piani"],
+    in_barra: ["chat", "lavagna", "progetti", "agenti", "home", "missioni", "incarichi", "piani"],
   };
   // 2026-10-05 (l'utente): pagine unite. Un menu-barra.json salvato prima può avere le voci vecchie: diventano «computer»
   // (al posto della prima che si incontra, in barra se una di loro lo era) o spariscono (tecnico sta in «telefono»).

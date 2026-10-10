@@ -39,9 +39,8 @@ MAX_FINESTRA_MIN = 240
 
 PREDEFINITE = [
     {"id": "vps", "nome": "VPS (ssh)", "stato": "chiedi", "corr": {"token": ["server-tuo"]}},
-    {"id": "odoo", "nome": "Odoo e database dei CRM", "stato": "chiedi",
-     "corr": {"url": ["crm.esempio.it"], "token": ["crm1-odoo", "crm-odoo-db", "due-odoo", "due-odoo-db",
-                                                         "progetto-tre-odoo", "progetto-tre-odoo-db"]}},
+    {"id": "database", "nome": "Database dei progetti", "stato": "chiedi",
+     "corr": {"url": ["db.esempio.it"], "token": ["db-progetto"]}},
     {"id": "github", "nome": "GitHub (gh e git push)", "stato": "chiedi",
      "corr": {"programmi": ["gh"], "inizia": ["git push"]}},
     {"id": "gmail", "nome": "Posta Gmail", "stato": "chiedi", "corr": {"mcp": ["mcp__claude_ai_Gmail__"]}},
@@ -54,8 +53,6 @@ PREDEFINITE = [
     {"id": "canva", "nome": "Canva", "stato": "chiedi", "corr": {"mcp": ["mcp__claude_ai_Canva__"]}},
     {"id": "calendario", "nome": "Google Calendar", "stato": "chiedi",
      "corr": {"mcp": ["mcp__claude_ai_Google_Calendar__"]}},
-    {"id": "pienissimo", "nome": "Pienissimo (dati dei locali)", "stato": "consentito",
-     "corr": {"mcp": ["mcp__claude_ai_Pienissimo_"]}},
 ]
 
 
@@ -287,7 +284,6 @@ def prova():
     v("git status", "passa", "Bash", {"command": "git status"}, "bypassPermissions")
     v("gh con variabile davanti", "blocca", "Bash", {"command": "GH_TOKEN=x gh pr list"}, "bypassPermissions")
     v("Gmail", "blocca", "mcp__claude_ai_Gmail__send_message", {}, "bypassPermissions")
-    v("Pienissimo consentito", "passa", "mcp__claude_ai_Pienissimo_Ma__get-products", {}, "bypassPermissions")
     v("Read qualunque", "passa", "Read", {"file_path": "/etc/hosts"}, "bypassPermissions")
     d["via"]["vps"] = time.time() + 60
     v("VPS con finestra aperta", "passa", "Bash", {"command": "ssh server-tuo uptime"}, "bypassPermissions")

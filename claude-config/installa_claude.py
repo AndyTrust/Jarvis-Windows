@@ -10,16 +10,27 @@ Fa, in modo ripetibile (si può rilanciare senza duplicare niente):
      connessioni (PreToolUse) — riconosce i propri per il nome dello script,
      quindi i ganci dell'utente restano com'erano
   3. aggiunge a ~/.claude/CLAUDE.md la sezione «Chi usa questo PC», se non c'è già
-  4. (2026-10-10) se c'è ~/.claude/hooks/stato_progetti.py: ganci Stop, PreCompact e SessionEnd che aggiornano da soli
-     <memoria condivisa>/<spazio>/Stato.md. Le guardie valgono per Bash e per PowerShell (matcher «Bash|PowerShell»).
+  4. (2026-10-10) ganci della memoria automatica: stato_avanzamento.py (Stop, PreCompact, SessionEnd → <memoria>/<spazio>/
+     Stato.md e diario del giorno) e conferma_salva.py (UserPromptSubmit sulle conferme → giro + aggiorna-memoria). Le guardie valgono per Bash e per PowerShell (matcher «Bash|PowerShell»).
   --python <exe>  l'interprete dei ganci (di base «python»; l'installatore passa quello di .venv, mai «python3»)
 """
 import argparse
 import json
+import os
 import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
+
+
+def guardia_prova(home):
+    """Prove: con JARVIS_PROVA=1 si scrive solo in una casa sotto JARVIS_PROVA_RADICE (una o più cartelle separate da
+    os.pathsep), mai nella casa vera."""
+    if os.environ.get("JARVIS_PROVA") == "1":
+        radice = os.environ.get("JARVIS_PROVA_RADICE", "")
+        h = os.path.realpath(str(home))
+        if not radice or not any((h + os.sep).startswith(os.path.realpath(r).rstrip(os.sep) + os.sep) for r in radice.split(os.pathsep) if r):
+            sys.exit(f"JARVIS_PROVA=1: la casa {h} non è sotto JARVIS_PROVA_RADICE ({radice or 'non impostata'}): mi fermo")
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--jarvis", required=True)
@@ -29,6 +40,7 @@ ap.add_argument("--python", default="python")
 a = ap.parse_args()
 
 HOME = Path(a.home)
+guardia_prova(HOME)
 JARVIS = Path(a.jarvis)
 CLAUDE = HOME / ".claude"
 CLAUDE.mkdir(parents=True, exist_ok=True)
@@ -97,13 +109,24 @@ if guardia.exists():
 conn = CLAUDE / "hooks" / "connessioni_guardia.py"
 if conn.exists():
     esiti["PreToolUse(Bash|mcp) connessioni"] = imposta("PreToolUse", {"type": "command", "command": f'{PY} "{conn.as_posix()}"', "timeout": 5}, "Bash|PowerShell|mcp__.*")
-# 2026-10-10: lo stato di avanzamento degli spazi si aggiorna da solo (Stop, PreCompact, SessionEnd)
-sp = CLAUDE / "hooks" / "stato_progetti.py"
-if sp.exists():
-    voce_sp = {"type": "command", "command": f'{PY} "{sp.as_posix()}" --jarvis "{sl}"', "timeout": 30}
-    esiti["Stop stato"] = imposta("Stop", voce_sp)
-    esiti["PreCompact stato"] = imposta("PreCompact", voce_sp)
-    esiti["SessionEnd stato"] = imposta("SessionEnd", voce_sp)
+# 2026-10-10: lo stato di avanzamento degli spazi (stato_avanzamento.py) e il diario del giorno con la spinta ad
+# aggiorna-memoria (conferma_salva.py) si aggiornano da soli. Il vecchio stato_progetti.py, se c'era, esce.
+for nome_ev in ("Stop", "PreCompact", "SessionEnd"):
+    for g in hooks.get(nome_ev, []):
+        g["hooks"] = [h for h in g.get("hooks", []) if "stato_progetti.py" not in (h.get("command") or "")]
+    hooks[nome_ev] = [g for g in hooks.get(nome_ev, []) if g.get("hooks")]
+sa = CLAUDE / "hooks" / "stato_avanzamento.py"
+if sa.exists():
+    voce_sa = {"type": "command", "command": f'{PY} "{sa.as_posix()}"', "timeout": 30}
+    for nome_ev in ("Stop", "PreCompact", "SessionEnd"):
+        esiti[f"{nome_ev} stato"] = imposta(nome_ev, voce_sa)
+ma = CLAUDE / "hooks" / "conferma_salva.py"
+if ma.exists():
+    esiti["UserPromptSubmit conferma"] = imposta("UserPromptSubmit", {"type": "command", "command": f'{PY} "{ma.as_posix()}"', "timeout": 30})
+for nome_ev in ("UserPromptSubmit", "Stop", "PreCompact", "SessionEnd"):     # il gancio di prova di prima, se c'era, esce
+    for g in hooks.get(nome_ev, []):
+        g["hooks"] = [h for h in g.get("hooks", []) if "memoria_auto.py" not in (h.get("command") or "")]
+    hooks[nome_ev] = [g for g in hooks.get(nome_ev, []) if g.get("hooks")]
 SETTINGS.write_text(json.dumps(s, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 for k, v in esiti.items():
     print(f"  gancio {k}: {v}")

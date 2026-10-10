@@ -39,8 +39,9 @@ Memoria, Voce e Lavagna degli agenti.
 
 - **Memoria condivisa** (Claude Code, @@NOME_ASSISTENTE@@ e gli altri harness collegati): `@@MEMORIA_CONDIVISA@@`.
   Porta d'ingresso `Comune/Memoria.md`; ogni spazio ha `<spazio>/Stato.md` con FATTO, DA FARE, ERRORI e data-ora.
-  Lo stato lo aggiorna da solo il gancio `stato_progetti.py`: quando chiudi un lavoro scrivi nella risposta righe
-  `FATTO: …`, `DA FARE: …`, `ERRORE: …` e finiscono lì. Le memorie dei progetti di Claude Code
+  Lo stato lo aggiorna da solo il gancio `stato_avanzamento.py` (anche il diario del giorno, `Diario/AAAA-MM-GG.md`),
+  leggendo la memoria del progetto e i diari degli agenti: quando chiudi un lavoro salvalo con `aggiorna-memoria`.
+  Alle conferme del proprietario («ok», «perfetto», «chiuso»…) esegui il salvataggio della skill `aggiorna-memoria`. Le memorie dei progetti di Claude Code
   (`%USERPROFILE%\.claude\projects\*\memory`) sono giunzioni dentro la memoria condivisa (`collega_memoria.py`).
 - Memoria di @@UTENTE@@: `.claude/memoria-@@UTENTE_SLUG@@/` (indice: `MEMORIA.md`). Ci sta il profilo di @@UTENTE@@
   e tutto ciò che una sessione futura rifarebbe da zero.
@@ -48,12 +49,15 @@ Memoria, Voce e Lavagna degli agenti.
   (`/brain` a inizio sessione, `salva.ps1` a fine sessione). I progetti non si mescolano.
 - Un file per fatto, con la data vera e la fonte. Una memoria che mente è peggio di una che manca.
 
-## Gli agenti di questo PC
+## Progetti e agenti (si parte da zero)
 
-- `esecutore` — esegue compiti già decisi, si ferma davanti all'irreversibile.
-- `archivista` (gruppo «Memoria») — registra la memoria nel posto giusto.
-- Altri agenti (per un progetto, per un hobby, per la casa) si creano copiando un profilo in `.claude/agents/`;
-  vedi `docs/PERSONALIZZAZIONE.md`.
+- Aiutanti generici: `esecutore` (esegue compiti già decisi) e `ricercatore-web` (fonti con link e data).
+- Nessun progetto precaricato. Quando @@UTENTE@@ nomina un progetto che non c'è o fa una richiesta che non rientra in
+  nessuno spazio, usa la skill `nuovo-progetto`: `python @@JARVIS_DIR_WIN@@\strumenti\crea_progetto.py "<nome>" --prova`,
+  poi senza `--prova` (la prima volta mostra il piano; in automatico se `creazione` è «automatica» nelle risposte di avvio).
+- Ogni progetto ha il suo capogruppo `<id>-ceo`, che crea gli specialisti uno alla volta con `crea_agente.py`
+  (missione chiara; haiku esegue, sonnet ricerca e verifica, opus solo programmazione). Ogni agente ha il suo diario.
+- Comandi: `/nuovo-progetto <nome>`, `/nuovo-agente <progetto> <ruolo>`. Guida: `docs/wiki/Progetti-e-agenti.md`.
 
 ## Regole
 

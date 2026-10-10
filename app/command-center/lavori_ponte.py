@@ -81,7 +81,7 @@ class Ponte:
         prog, agente = str(d.get("progetto") or "").strip(), str(d.get("agente") or "").strip()
         a = f"{_slug(prog)}:{agente}" if prog else agente
         da = "jarvis"
-        if str(d.get("cosa") or "").lower().startswith("riunione") and prog and not agente.startswith("ceo-"):
+        if str(d.get("cosa") or "").lower().startswith("riunione") and prog and not (agente.endswith("-ceo") or agente.startswith("ceo-")):
             da = f"{_slug(prog)}:capogruppo"
         return da, a
 
@@ -200,30 +200,30 @@ def prova():
     coperti = set()
     p = Ponte(att, sto, "Mac", reg, coperto=lambda k: k in coperti, adesso=lambda: ora[0])
     try:
-        presa("mac__s__vecchio__x.json", "due-posta", "Progetto Due", "vecchio", ora[0] - 3600)
+        presa("mac__s__vecchio__x.json", "posta", "Spazio A", "vecchio", ora[0] - 3600)
         (att / "mac__s__senzats__x.json").write_text(json.dumps({"progetto": "Jarvis", "agente": "vecchio", "cosa": "settembre",
                                                                 "macchina": "Mac"}))
         os.utime(att / "mac__s__senzats__x.json", (ora[0] - 86400 * 15,) * 2)
-        presa("mac__s__nuovo__x.json", "due-gestionale", "Progetto Due", "riunione: posizione", ora[0] - 5)
-        presa("pc__s__altro__x.json", "commercialista", "Progetto Uno", "altro", ora[0] - 5, macchina="PC")
+        presa("mac__s__nuovo__x.json", "gestionale", "Spazio A", "riunione: posizione", ora[0] - 5)
+        presa("pc__s__altro__x.json", "commercialista", "Spazio B", "altro", ora[0] - 5, macchina="PC")
         p.giro()
         v("primo giro: solo la presa recente di questa macchina (richiesta+partito)",
           [(e["ev"], e["id"]) for e in eventi] == [("richiesta", f"lav:mac__s__nuovo__x:{int(ora[0] - 5)}"),
                                                     ("partito", f"lav:mac__s__nuovo__x:{int(ora[0] - 5)}")])
-        v("riunione: da Progetto Due:capogruppo a Progetto Due:due-gestionale",
-          eventi[0]["da"] == "Progetto Due:capogruppo" and eventi[0]["a"] == "Progetto Due:due-gestionale" and eventi[0]["fonte"] == "lavori")
+        v("riunione: da Spazio A:capogruppo a Spazio A:gestionale",
+          eventi[0]["da"] == "Spazio A:capogruppo" and eventi[0]["a"] == "Spazio A:gestionale" and eventi[0]["fonte"] == "lavori")
         v("secondo giro senza cambi: niente", p.giro() == 0)
         # finito con esito nello storico
         f = sto / f"{datetime.now().strftime('%Y-%m')}__mac.md"
         f.write_text("| Finito | Progetto | Agente | Cosa | Esito | File |\n|---|---|---|---|---|---|\n"
-                     "| 2026-10-05 10:46 | Progetto Due | due-gestionale | riunione: posizione | posizione scritta | — |\n")
+                     "| 2026-10-05 10:46 | Spazio A | gestionale | riunione: posizione | posizione scritta | — |\n")
         (att / "mac__s__nuovo__x.json").unlink()
         ora[0] += 30
         p.giro()
         r = eventi[-1]
         v("finito → risposta con l'esito e la durata, verso inverso",
-          r["ev"] == "risposta" and r["esito"] == "posizione scritta" and r["da"] == "Progetto Due:due-gestionale"
-          and r["a"] == "Progetto Due:capogruppo" and r["durata_s"] == 35.0)
+          r["ev"] == "risposta" and r["esito"] == "posizione scritta" and r["da"] == "Spazio A:gestionale"
+          and r["a"] == "Spazio A:capogruppo" and r["durata_s"] == 35.0)
         v("la presa vecchia sparita (mai raccontata) non scrive niente", (att / "mac__s__vecchio__x.json").unlink() or p.giro() == 0)
         # dopo un riavvio: una presa senza «ts» e ferma da settimane non è «nuova»
         q = Ponte(att, sto, "Mac", reg, adesso=lambda: ora[0] + 10)
@@ -237,25 +237,25 @@ def prova():
         p.giro()
         v("coperto dal gancio: niente doppioni", len(eventi) == n)
         # fantasma
-        presa("mac__s__morto__x.json", "analista", "Patrimonio", "analisi", ora[0])
+        presa("mac__s__morto__x.json", "analista", "Spazio C", "analisi", ora[0])
         p.giro()
         (att / "mac__s__morto__x.json").rename(att / "mac__s__morto__x.json.fantasma-pid1-morto")
         p.giro()
         v("presa diventata fantasma → errore", eventi[-1]["ev"] == "errore" and eventi[-1]["a"] == "jarvis"
-          and eventi[-1]["da"] == "patrimonio:analista")
+          and eventi[-1]["da"] == "spazio-c:analista")
         # chiusa male
-        presa("mac__s__male__x.json", "capo-esempio", "Vita personale", "riunione: verdetto", ora[0])
+        presa("mac__s__male__x.json", "capo-esempio", "Spazio D", "riunione: verdetto", ora[0])
         p.giro()
         v("capogruppo in riunione: da jarvis", eventi[-2]["da"] == "jarvis")
         with f.open("a") as fh:
-            fh.write("| 2026-10-05 11:00 | Vita personale | capo-esempio | riunione: verdetto | chiusa male: nessun battito | — |\n")
+            fh.write("| 2026-10-05 11:00 | Spazio D | capo-esempio | riunione: verdetto | chiusa male: nessun battito | — |\n")
         (att / "mac__s__male__x.json").unlink()
         p.giro()
         v("«chiusa male» nello storico → errore", eventi[-1]["ev"] == "errore" and "chiusa male" in eventi[-1]["errore"])
         # stessa sessione e agente, seconda presa: stesso file, id nuovo
         primo_id = eventi[-1]["id"]
         ora[0] += 60
-        presa("mac__s__male__x.json", "capo-esempio", "Vita personale", "di nuovo", ora[0])
+        presa("mac__s__male__x.json", "capo-esempio", "Spazio D", "di nuovo", ora[0])
         p.giro()
         v("seconda presa con lo stesso file: id diverso", eventi[-1]["ev"] == "partito" and eventi[-1]["id"] != primo_id)
     finally:

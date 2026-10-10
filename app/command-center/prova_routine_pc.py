@@ -37,21 +37,21 @@ def riga(nome, prossimo="06/10/2026 07:30:00", stato="Ready", ultimo="05/10/2026
 CSV = "\n".join([
     riga("\\Jarvis Battito", tipo="One Time Only, Minute ", ripeti="0 Hour(s), 15 Minute(s)", ora="09:00:00"),
     riga("\\Jarvis Avvio", tipo="At logon time", prossimo="N/A", codice="267011", ultimo="N/A"),
-    riga("\\Jarvis\\giro-crm", codice="1", commento="Giro dati del CRM"),
+    riga("\\Jarvis\\giro-dati", codice="1", commento="Giro dati del progetto"),
     riga("\\Jarvis\\spento", attiva="Disabled", stato="Disabled"),
     riga("\\Microsoft\\Windows\\Defrag\\ScheduledDefrag"),
 ])
 
 # 1. lettura
 r = {x["nome"]: x for x in P.routine_win(CSV)}
-v("solo le attività che cominciano con \\Jarvis", set(r) == {"\\Jarvis Battito", "\\Jarvis Avvio", "\\Jarvis\\giro-crm", "\\Jarvis\\spento"})
-v("id sicuro (win:…)", r["\\Jarvis\\giro-crm"]["id"] == "win:jarvis-giro-crm")
-v("esito: 0 = ok, 1 = errore, mai partita = nessuno", (r["\\Jarvis Battito"]["esito"], r["\\Jarvis\\giro-crm"]["esito"], r["\\Jarvis Avvio"]["esito"]) == ("ok", "errore", None))
+v("solo le attività che cominciano con \\Jarvis", set(r) == {"\\Jarvis Battito", "\\Jarvis Avvio", "\\Jarvis\\giro-dati", "\\Jarvis\\spento"})
+v("id sicuro (win:…)", r["\\Jarvis\\giro-dati"]["id"] == "win:jarvis-giro-dati")
+v("esito: 0 = ok, 1 = errore, mai partita = nessuno", (r["\\Jarvis Battito"]["esito"], r["\\Jarvis\\giro-dati"]["esito"], r["\\Jarvis Avvio"]["esito"]) == ("ok", "errore", None))
 v("orari: ripetizione, all'accesso, ogni giorno", r["\\Jarvis Battito"]["orario"].startswith("ogni 15 minuti")
-  and r["\\Jarvis Avvio"]["orario"] == "all'accesso" and r["\\Jarvis\\giro-crm"]["orario"] == "ogni giorno 07:30")
-v("data letta (gg/mm/aaaa)", abs((r["\\Jarvis\\giro-crm"]["ultimo"] or 0) - time.mktime((2026, 10, 5, 7, 30, 0, 0, 0, -1))) < 2)
+  and r["\\Jarvis Avvio"]["orario"] == "all'accesso" and r["\\Jarvis\\giro-dati"]["orario"] == "ogni giorno 07:30")
+v("data letta (gg/mm/aaaa)", abs((r["\\Jarvis\\giro-dati"]["ultimo"] or 0) - time.mktime((2026, 10, 5, 7, 30, 0, 0, 0, -1))) < 2)
 v("disattivata: non avviabile", r["\\Jarvis\\spento"]["attivo"] is False and not r["\\Jarvis\\spento"]["avviabile"])
-v("commento come descrizione", r["\\Jarvis\\giro-crm"]["descrizione"] == "Giro dati del CRM")
+v("commento come descrizione", r["\\Jarvis\\giro-dati"]["descrizione"] == "Giro dati del progetto")
 
 # 2. aggancio con schtasks finto (registra i comandi) e senza VPS configurata
 COMANDI = []
@@ -69,25 +69,25 @@ def finto(argv, timeout=30):
 
 P._esegui = finto
 P.aggancia(R)
-v("R.ID accetta win:", R.ID.fullmatch("win:jarvis-giro-crm") is not None)
+v("R.ID accetta win:", R.ID.fullmatch("win:jarvis-giro-dati") is not None)
 d = R.elenco(forza=True)
 v("senza «routine_vps» la VPS non si chiama e lo dice", any("routine_vps" in a for a in d["avvisi"]) and d["conta"].get("win") == 4)
 v("gruppo «pc» per le attività del PC", {x["gruppo"] for x in d["routine"]} == {"pc"})
 
-# 3. filtro della VPS: solo le routine del CRM (originale finto)
+# 3. filtro della VPS: solo le routine condivise (originale finto)
 falso = lambda forza=False, extra=(): {"routine": [
-    {"id": "vps:jarvis-giro-odoo", "fonte": "vps", "descrizione": "giro", "comando": "x"},
+    {"id": "vps:jarvis-giro-condiviso", "fonte": "vps", "descrizione": "giro", "comando": "x"},
     {"id": "vps:jarvis-allerta-altro", "fonte": "vps", "descrizione": "altro progetto", "comando": "y"},
-    {"id": "cron:fpmarket-vigilanza", "fonte": "cron", "descrizione": "", "comando": "z"}], "avvisi": [], "letto": time.time()}
+    {"id": "cron:altro-vigilanza", "fonte": "cron", "descrizione": "", "comando": "z"}], "avvisi": [], "letto": time.time()}
 d2 = P._elenco(falso)(True)
 ids = {x["id"] for x in d2["routine"]}
-v("dalla VPS solo il CRM (giro-odoo sì, gli altri no)", "vps:jarvis-giro-odoo" in ids and "vps:jarvis-allerta-altro" not in ids
-  and "cron:fpmarket-vigilanza" not in ids)
+v("dalla VPS solo il condiviso (giro-condiviso sì, gli altri no)", "vps:jarvis-giro-condiviso" in ids and "vps:jarvis-allerta-altro" not in ids
+  and "cron:altro-vigilanza" not in ids)
 
 # 4. avvia: schtasks /run, senza conferma
 COMANDI.clear()
-e = R.avvia("win:jarvis-giro-crm", chi="prova")
-v("avvia lancia schtasks /run /tn <nome>", ["schtasks", "/run", "/tn", "\\Jarvis\\giro-crm"] in COMANDI and e["stato"] == "in_corso")
+e = R.avvia("win:jarvis-giro-dati", chi="prova")
+v("avvia lancia schtasks /run /tn <nome>", ["schtasks", "/run", "/tn", "\\Jarvis\\giro-dati"] in COMANDI and e["stato"] == "in_corso")
 
 # 5. modifica a due tempi
 COMANDI.clear()
@@ -96,9 +96,9 @@ try:
     v("nuova sulla VPS dal PC: rifiutata", False)
 except R.RoutineNonValida:
     v("nuova sulla VPS dal PC: rifiutata", True)
-p = R.prepara({"id": "win:jarvis-giro-crm", "orario": "08:15", "attivo": False})
+p = R.prepara({"id": "win:jarvis-giro-dati", "orario": "08:15", "attivo": False})
 v("prepara non esegue niente", not any(c[:2] == ["schtasks", "/change"] for c in COMANDI))
-v("il comando preparato è quello esatto", "schtasks /change /tn \\Jarvis\\giro-crm /st 08:15" in p["comando"] and "/disable" in p["comando"])
+v("il comando preparato è quello esatto", "schtasks /change /tn \\Jarvis\\giro-dati /st 08:15" in p["comando"] and "/disable" in p["comando"])
 try:
     R.conferma(p["prep"], "codice-sbagliato")
     v("codice sbagliato: rifiutato", False)
@@ -106,8 +106,8 @@ except R.RoutineNonValida:
     v("codice sbagliato: rifiutato", True)
 time.sleep(R.PREP_MIN_S + 0.1)
 c = R.conferma(p["prep"], p["codice"])
-v("conferma con il codice: esegue i due comandi", c["ok"] and ["schtasks", "/change", "/tn", "\\Jarvis\\giro-crm", "/st", "08:15"] in COMANDI
-  and ["schtasks", "/change", "/tn", "\\Jarvis\\giro-crm", "/disable"] in COMANDI)
+v("conferma con il codice: esegue i due comandi", c["ok"] and ["schtasks", "/change", "/tn", "\\Jarvis\\giro-dati", "/st", "08:15"] in COMANDI
+  and ["schtasks", "/change", "/tn", "\\Jarvis\\giro-dati", "/disable"] in COMANDI)
 try:
     R.conferma(p["prep"], p["codice"])
     v("la stessa conferma non vale due volte", False)
@@ -116,7 +116,7 @@ except R.RoutineNonValida:
 n = R.prepara({"nuova": True, "fonte": "win", "nome": "prova-nuova", "orario": "ogni 20 min", "comando": "python x.py"})
 v("nuova sul PC: /create in \\Jarvis\\ ogni N minuti", "schtasks /create /tn \\Jarvis\\prova-nuova /tr" in n["comando"] and "/sc minute /mo 20" in n["comando"])
 try:
-    R.prepara({"id": "win:jarvis-giro-crm", "orario": "ogni 5 min"})
+    R.prepara({"id": "win:jarvis-giro-dati", "orario": "ogni 5 min"})
     v("su un'attività esistente l'intervallo non si cambia", False)
 except R.RoutineNonValida:
     v("su un'attività esistente l'intervallo non si cambia", True)

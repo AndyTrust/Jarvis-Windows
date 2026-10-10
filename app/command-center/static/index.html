@@ -35,6 +35,7 @@ if(/\bJarvisApp\//.test(navigator.userAgent))document.documentElement.classList.
 <link rel="stylesheet" href="/static/attivita.css">
 <link rel="stylesheet" href="/static/computer.css">
 <link rel="stylesheet" href="/static/registro.css">
+<link rel="stylesheet" href="/static/progetti.css">
 <link rel="stylesheet" href="/static/connessioni.css">
 <link rel="stylesheet" href="/static/piani.css">
 <link rel="stylesheet" href="/static/stop-chat.css">
@@ -45,7 +46,8 @@ if(/\bJarvisApp\//.test(navigator.userAgent))document.documentElement.classList.
 <link rel="stylesheet" href="/static/notifiche.css">
 <!-- temi: dopo tutti gli altri fogli, cosi vince -->
 <link rel="stylesheet" href="/static/temi.css">
-<script>window.CC_TOKEN = "__TOKEN__";</script>
+<script>window.CC_TOKEN = "__TOKEN__"; window.CC_ASSISTENTE = "__ASSISTENTE__";</script>
+<script src="/static/nome-assistente.js"></script>
 <style>/* 2026-10-05 (l'utente): pagina «Computer» con le schede (Schermo del Mac, Terminale, Desktop VPS, Server) e banco
    tecnico dentro «Telefono». Stili minimi: le schede riusano .segmenti di app.css. */
 .vista[data-vista="computer"].attiva { grid-template-columns: minmax(0, 1fr); }
@@ -120,6 +122,7 @@ a.pc-btn-link { padding: 3px 9px; font-size: 12px; border: 1px solid var(--linea
     <nav class="schede menu" aria-label="Sezioni">
       <a href="#chat" data-vista="chat"><i class="spia grigia"></i>Chat</a>
       <a href="#lavagna" data-vista="lavagna" title="La lavagna a pagina intera"><i class="spia grigia"></i>Lavagna</a>
+      <a href="#progetti" data-vista="progetti" title="I progetti, i loro file e i loro agenti"><i class="spia grigia"></i>Progetti</a>
       <a href="#agenti" data-vista="agenti"><i class="spia grigia"></i>Squadra <b class="conta" id="conta-catena"></b></a>
       <a href="#home" data-vista="home"><i class="spia grigia"></i>Stato</a>
       <a href="#missioni" data-vista="missioni"><i class="spia grigia"></i>Missioni <b class="conta" id="conta-missioni"></b></a>
@@ -451,8 +454,10 @@ a.pc-btn-link { padding: 3px 9px; font-size: 12px; border: 1px solid var(--linea
     <!-- ------------------------------------------------ SQUADRA (era «Catena · Lavori»)
          Rifatta: tutto quello che dice chi lavora sta qui.
          Ordine: chi lavora ora, le chiavi e le anomalie del portiere, i lavori col dettaglio,
-         la squadra per spazio, le verifiche del CRM, le sessioni aperte. Le scadenze stanno
+         la squadra per spazio, le verifiche, le sessioni aperte. Le scadenze stanno
          in Stato, gli «Agenti delle missioni» in Missioni. -->
+    <!-- 2026-10-10: la pagina «Progetti» (la riempie progetti.js); sta qui perché il routing la conosca già al primo caricamento -->
+    <section class="vista vista-progetti" data-vista="progetti"></section>
     <section class="vista" data-vista="agenti">
       <section class="pannello claude-ora" id="box-claude-ora">
         <h2>Claude adesso <small>si accende chi lavora</small></h2>
@@ -544,7 +549,7 @@ a.pc-btn-link { padding: 3px 9px; font-size: 12px; border: 1px solid var(--linea
       </section>
       <!-- spostate qui da Memoria: sono agenti che lavorano, come il resto della squadra -->
       <section class="pannello verifiche">
-        <h2>Verifiche e agenti del CRM</h2>
+        <h2>Verifiche e agenti</h2>
         <div id="verifiche" class="elenco-pulsanti"></div>
         <div class="agente-form">
           <select id="agente-scelto"></select>
@@ -830,7 +835,7 @@ a.pc-btn-link { padding: 3px 9px; font-size: 12px; border: 1px solid var(--linea
     </div>
     <div class="sa-campi">
       <label>Id <input id="ng-id" maxlength="40" placeholder="eventi-privati" pattern="[a-z0-9]+(-[a-z0-9]+)*" required></label>
-      <label>Capogruppo <input id="ng-guida" maxlength="60" placeholder="guida-viaggi" pattern="[a-z0-9]+(-[a-z0-9]+)*"></label>
+      <label>Capogruppo <input id="ng-guida" maxlength="60" placeholder="viaggi-ceo" pattern="[a-z0-9]+(-[a-z0-9]+)*"></label>
     </div>
     <label class="sa-riga">Cartella del progetto <small class="nota">una cartella che hai già sul PC: dentro vanno i dati e gli agenti del progetto</small>
       <span style="display:flex;gap:6px"><input id="ng-cartella" style="flex:1" placeholder="scegli con Sfoglia, o scrivi il percorso" required><button type="button" id="ng-sfoglia" class="secondario">Sfoglia…</button></span>
@@ -912,6 +917,7 @@ a.pc-btn-link { padding: 3px 9px; font-size: 12px; border: 1px solid var(--linea
 <script src="/static/attivita.js" defer></script>
 <script src="/static/computer.js" defer></script>
 <script src="/static/registro.js" defer></script>
+<script src="/static/progetti.js" defer></script>
 <script src="/static/connessioni.js" defer></script>
 <script src="/static/piani.js" defer></script>
 <script src="/static/barra.js" defer></script>

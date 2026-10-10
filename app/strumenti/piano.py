@@ -12,7 +12,7 @@ Come si usa (lo fa Jarvis; l'approvazione la dà l'utente dalla pagina «Piani»
 
 Forma di piano.json:
     {"titolo": "...", "scopo": "...", "spazio": "generale", "durata_min": 120,
-     "servizi": ["vps", "telegram"], "cartelle": ["@@CARTELLA_SERVER@@/jarvis"], "non_tocco": ["database dei CRM"],
+     "servizi": ["vps", "telegram"], "cartelle": ["@@CARTELLA_SERVER@@/jarvis"], "non_tocco": ["database di produzione"],
      "passi": [{"testo": "leggere i log", "tipo": "lettura"},
                {"testo": "riavviare il servizio", "tipo": "irreversibile",
                 "comando": "ssh server-tuo systemctl restart jarvis-telegram"}]}

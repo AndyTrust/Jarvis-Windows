@@ -41,7 +41,7 @@ try:
     d = M.leggi()
     ok("file assente: predefinito", d["predefinito"] is True and d["in_barra"][:2] == ["chat", "lavagna"], d)
     ok("predefinito: in_barra dentro ordine", set(d["in_barra"]) <= set(d["ordine"]))
-    ok("predefinito: Altro con scadenze … terminale", d["ordine"][7:] == M.IN_ALTRO_PARTENZA, d["ordine"])
+    ok("predefinito: Altro con scadenze … terminale", d["ordine"][len(M.IN_BARRA_PARTENZA):] == M.IN_ALTRO_PARTENZA, d["ordine"])
 
     r = M.scrivi({"ordine": ["lavagna", "chat", "home", "memoria"], "in_barra": ["chat", "lavagna"]})
     ok("scrivi: torna validato", r == {"ordine": ["lavagna", "chat", "home", "memoria"], "in_barra": ["lavagna", "chat"],

@@ -47,7 +47,7 @@ if (Test-Path $perc) {
     } catch { KO "percorsi.json non è leggibile" }
 } else { AV "manca ~\.jarvis\percorsi.json: rilancia strumenti\collega_memoria.py --applica" }
 $set = Join-Path $env:USERPROFILE ".claude\settings.json"
-if ((Test-Path $set) -and ((Get-Content $set -Raw) -match "stato_progetti\.py")) { OK "gancio dello stato dei progetti (Stop, PreCompact, SessionEnd)" } else { AV "gancio stato_progetti.py non installato in ~\.claude\settings.json" }
+if ((Test-Path $set) -and ((Get-Content $set -Raw) -match "stato_avanzamento\.py") -and ((Get-Content $set -Raw) -match "conferma_salva\.py")) { OK "ganci della memoria automatica (stato_avanzamento, conferma_salva)" } else { AV "ganci stato_avanzamento.py e conferma_salva.py non installati in ~\.claude\settings.json" }
 if (Test-Path (Join-Path $env:USERPROFILE ".jarvis\installato.json")) { OK "installato.json presente (prima apertura completata)" }
 
 Sez "Voce"

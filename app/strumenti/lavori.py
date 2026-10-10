@@ -73,26 +73,17 @@ import processi  # noqa: E402  su Windows os.kill(pid, 0) termina il processo: s
 
 MEMORIA = pathlib.Path(os.path.expanduser('~/.ai-memory/global'))
 
-# 🔴 IL REGISTRO STA SULLA VPS, fonte unica (decisione di l'utente, 2026-10-05).
-# Prima stava in ~/.ai-memory/global/lavori/, cioè nel vault personale su
-# OneDrive: il PC Windows dell'amministrazione non ha il vault (e non deve
-# averlo), quindi non poteva prendere la chiave db-crm da solo. Adesso:
-#   - sulla VPS questo script lavora in locale, in @@HOME_SERVER@@/registro-lavori/
-#     (attivi/ e storico/, fuori da OneDrive: nessuna copia in conflitto);
-#   - sul Mac (e ovunque non sia la VPS) ogni comando si INOLTRA alla VPS via
-#     ssh, con l'identità di chi lo lancia (macchina, sessione, pid): la presa
-#     resta sua. Se la VPS non risponde è un errore, mai una presa locale che
-#     nessuno vedrebbe;
-#   - sul PC Windows lo fa amministrazione/lavori.ps1, con la chiave del PC
-#     (utente db1, azione «lavori» di crm1-amministrazione, solo chiavi CRM).
+# Dove sta il registro (facoltativo un server):
+#   - su un PC Windows senza JARVIS_VPS_SSH il registro resta sul PC, in ~/.ai-memory/global/lavori/;
+#   - con un server (JARVIS_VPS_SSH) ogni comando si INOLTRA al server via ssh, con l'identità di chi lo lancia
+#     (macchina, sessione, pid), e sul server lo script lavora in locale in @@HOME_SERVER@@/registro-lavori/.
 # I moduli che leggono il registro dal Mac (portiere, badge, cruscotto,
 # sentinella, lavagna) leggono una copia in sola lettura in ~/.cache/
 # jarvis-lavori/, rinfrescata dalla VPS a ogni lettura (al massimo ogni 10 s).
 VPS_SSH = os.environ.get('JARVIS_VPS_SSH') or 'server-tuo'
 VPS_LAVORI_PY = '@@CARTELLA_SERVER@@/jarvis/strumenti/lavori.py'
 REGISTRO_VPS = pathlib.Path('@@HOME_SERVER@@/registro-lavori')
-# PC Windows: senza JARVIS_VPS_SSH il registro di questo Jarvis resta sul PC, in ~/.ai-memory/global/lavori/ (come
-# prima del 2026-10-05). Il registro condiviso del CRM lo raggiunge amministrazione/lavori.ps1, non questo script.
+# PC Windows: senza JARVIS_VPS_SSH il registro di questo Jarvis resta sul PC, in ~/.ai-memory/global/lavori/.
 PC_LOCALE = sys.platform == 'win32' and not os.environ.get('JARVIS_VPS_SSH')
 SU_VPS = (os.environ.get('JARVIS_LAVORI_LOCALE') == '1' or PC_LOCALE
           or str(pathlib.Path(__file__).resolve()).startswith('@@HOME_SERVER@@/'))
@@ -106,10 +97,9 @@ STORICO = LAVORI / 'storico'
 # con JARVIS_LAVORI (prove) anche l'indice va accanto, mai sopra quello vero
 INDICE = (LAVORI.parent / 'lavori-in-corso.md') if os.environ.get('JARVIS_LAVORI') else MEMORIA / 'lavori-in-corso.md'
 
-# Le chiavi del Progetto CRM: le sole che il PC Windows può prendere
-# (regola di l'utente, 2026-10-05: accesso completo al CRM, niente progetti di
-# l'utente). Il controllo vero lo fa crm1-lavori sulla VPS; qui serve a dirlo.
-CHIAVI_CRM = {'db-crm', 'vps-shell', 'portali-crm', 'wordpress-sito', 'gtm-sito'}
+# Facoltativo: un PC che deve vedere solo alcuni lavori (un progetto condiviso con altri) mette JARVIS_SOLO_PAROLE
+# (espressione regolare sui nomi dei progetti) e JARVIS_SOLO_CHIAVI (chiavi separate da virgola).
+CHIAVI_CONDIVISE = {k.strip() for k in os.environ.get('JARVIS_SOLO_CHIAVI', '').split(',') if k.strip()}
 
 # Senza battito da più di così, la sessione è considerata morta: un terminale
 # chiuso col taglio non fa in tempo a scrivere «finito». 45 minuti perché il
@@ -410,17 +400,17 @@ def righe_altri(attivi, progetto=None, escludi=None):
     return out
 
 
-SOLO_CRM = os.environ.get('JARVIS_SOLO_CRM') == '1'   # lo mette crm1-lavori: il PC Windows vede solo il CRM
-PAROLE_CRM = re.compile(r'140|\bcrm\b|db1|odoo', re.I)
+SOLO_CONDIVISO = bool(os.environ.get('JARVIS_SOLO_PAROLE'))   # questo PC vede solo i lavori del progetto condiviso
+PAROLE_CONDIVISO = re.compile(os.environ.get('JARVIS_SOLO_PAROLE') or r'(?!x)x', re.I)
 
 
-def del_crm(d):
-    return bool(PAROLE_CRM.search(f"{d.get('progetto') or ''} {d.get('cosa') or ''}"))
+def del_condiviso(d):
+    return bool(PAROLE_CONDIVISO.search(f"{d.get('progetto') or ''} {d.get('cosa') or ''}"))
 
 
 def stampa(d):
-    if SOLO_CRM and not del_crm(d):
-        # Il PC dell'amministrazione non vede i progetti di l'utente (2026-10-05): solo che c'è qualcuno e cosa tiene.
+    if SOLO_CONDIVISO and not del_condiviso(d):
+        # con JARVIS_SOLO_PAROLE gli altri progetti non si vedono: solo che c'è qualcuno e cosa tiene
         print(f"  {'🔴' if not d.get('morta') else '⚪'} (un lavoro di un altro progetto)")
         if chiavi_di(d):
             print(f"      🔑 {', '.join(chiavi_di(d))}")
@@ -441,13 +431,15 @@ def stampa(d):
 
 
 def altri_pc_al_lavoro(ore=3):
-    """Le macchine senza vault (PC Windows, VPS) non scrivono in lavori/attivi: lasciano righe in
-    Progetto CRM/_CONDIVISO-AGENTI/registro/<PC>.log (`AAAA-MM-GG HH:MM | PC | chi | INIZIO <cosa>` e `… | FINE <cosa> | esito`).
-    Un INIZIO senza FINE dello stesso «chi» nelle ultime ore vuol dire «sta lavorando» (2/10/2026, l'utente)."""
+    """Facoltativo: altre macchine che lasciano righe in <JARVIS_REGISTRO_CONDIVISO>/<PC>.log
+    (`AAAA-MM-GG HH:MM | PC | chi | INIZIO <cosa>` e `… | FINE <cosa> | esito`). Un INIZIO senza FINE dello stesso
+    «chi» nelle ultime ore vuol dire «sta lavorando». Senza la variabile non c'è niente da leggere."""
     import datetime as _dt, re as _re
     from pathlib import Path as _P
-    REGISTRO_CONDIVISO = _P.home() / "OneDrive/Progetto CRM/_CONDIVISO-AGENTI/registro"
     fuori = []
+    if not os.environ.get("JARVIS_REGISTRO_CONDIVISO"):
+        return fuori
+    REGISTRO_CONDIVISO = _P(os.environ["JARVIS_REGISTRO_CONDIVISO"])
     if not REGISTRO_CONDIVISO.is_dir():
         return fuori
     limite = _dt.datetime.now() - _dt.timedelta(hours=ore)
@@ -477,13 +469,13 @@ def altri_pc_al_lavoro(ore=3):
 
 def cmd_chi(a):
     attivi = leggi_attivi()
-    if SOLO_CRM:   # PC Windows: solo il CRM e chi tiene una chiave del CRM
-        attivi = [d for d in attivi if del_crm(d) or set(chiavi_di(d)) & CHIAVI_CRM]
+    if SOLO_CONDIVISO:   # solo il progetto condiviso e chi tiene una delle sue chiavi
+        attivi = [d for d in attivi if del_condiviso(d) or set(chiavi_di(d)) & CHIAVI_CONDIVISE]
     altri = righe_altri(attivi, a.progetto, escludi=None if a.tutti else mio_file(a.progetto or '') if a.progetto else None)
     vivi = [d for d in altri if not d.get('morta')]
     pc_altri = altri_pc_al_lavoro()
-    if pc_altri and (not a.progetto or any(k in (a.progetto or '').lower() for k in ('140', 'crm', 'db1', 'sito'))):
-        print('Dal registro condiviso del CRM (PC Windows / VPS):')
+    if pc_altri and (not a.progetto or del_condiviso({'progetto': a.progetto})):
+        print('Dal registro condiviso (altri PC / server):')
         for r in pc_altri:
             print('  🖥 ' + r)
         print('')
@@ -568,7 +560,7 @@ def cmd_prendo(a):
 
     # Il comando di chiusura già scritto, con l'agente dentro: chi prende con
     # un --agente e chiude con un `finito` nudo chiude la presa di un altro.
-    if SOLO_CRM:
+    if SOLO_CONDIVISO:
         print(f'Per chiudere:  .\\amministrazione\\lavori.ps1 finito "<esito>" -Agente {io}')
     else:
         print(f'Per chiudere:  python3 strumenti/lavori.py finito "<esito>" --agente {io}')
@@ -678,7 +670,7 @@ def cmd_chiavi(a):
             for d in occupate[r]:
                 tag = ' ⏰ SCADUTA' if d.get('scaduta') else ''
                 chi_e = (f'{d.get("agente")} su {d.get("macchina")} · {d.get("progetto")}'
-                         if not SOLO_CRM or del_crm(d) else '(un lavoro di un altro progetto)')
+                         if not SOLO_CONDIVISO or del_condiviso(d) else '(un lavoro di un altro progetto)')
                 print(f'      {chi_e} · presa {eta_di(d, "inizio")}'
                       f' (max {max_min(d)} min){tag}')
     if senza:
@@ -746,7 +738,7 @@ def cmd_finito(a):
         io = list(nomi.values())[0] if nomi else chi_sono(None)
     chiusi = 0
     rese = []
-    # Il PC Windows (crm1-lavori mette JARVIS_FINITO_LARGO=1): se nella sessione
+    # Con JARVIS_FINITO_LARGO=1 (comandi lanciati da PowerShell): se nella sessione
     # non c'è niente, stessa macchina e stesso agente bastano. Lì ogni comando
     # di PowerShell può nascere in una sessione diversa da quella di `prendo`.
     largo = os.environ.get('JARVIS_FINITO_LARGO') == '1' and not any(
@@ -911,7 +903,7 @@ def inoltra(argv):
 
 
 def da_remoto(carico):
-    """Sulla VPS: argomenti e identità arrivati da `inoltra` (Mac) o da crm1-lavori (Windows)."""
+    """Sul server: argomenti e identità arrivati da `inoltra` (un altro PC)."""
     import base64
     d = json.loads(base64.b64decode(carico).decode())
     argv = d.get('argv') or []
@@ -1060,7 +1052,7 @@ def cmd_storico(a):
     for f in sorted(STORICO.glob('*.md')):
         for r in f.read_text(encoding='utf-8', errors='replace').split('\n'):
             if r.startswith('| 20') and r[2:12] >= limite:
-                if not SOLO_CRM or PAROLE_CRM.search(r):
+                if not SOLO_CONDIVISO or PAROLE_CONDIVISO.search(r):
                     righe.append(r)
     if not righe:
         print(f'Niente negli ultimi {a.giorni} giorni.')

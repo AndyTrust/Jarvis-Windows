@@ -5,8 +5,8 @@
 // rete al loro posto c'è una paginetta che dice solo che Jarvis non risponde. La v26 (e ogni versione dopo) cancella all'attivazione le cache vecchie.
 // Storia del PC: v21 schema del Mac; v19 modo approvazione e barra risorse; v16 smistamento; v15 avatar a bolla; v14 Dots;
 // v13 interfaccia viva; v12 super app (Audit, Memoria a tre banche); v11 tasto Voce; v10 tasto STOP; v9 assistenza.
-const CACHE = "jarvis-cc-v27";   // v27: dal Mac (fonte unica, fili remoti, notifiche)
-const GUSCIO = ["/static/app.css", "/static/app.js", "/static/super.css", "/static/memoria.js", "/static/audit.js", "/static/vivo.js", "/static/dots.css", "/static/chiamata.css", "/static/chiamata.js", "/static/dettatura.css", "/static/dettatura.js", "/static/temi.css", "/static/temi.js", "/static/dots.js", "/static/smista-regole.js", "/static/smista.js", "/static/approvazione.css", "/static/approvazione.js", "/static/risorse.css", "/static/risorse.js", "/static/icona-192.png", "/static/logo.svg"];
+const CACHE = "jarvis-cc-v29";   // v29: nome dell'assistente in tutta la pagina
+const GUSCIO = ["/static/app.css", "/static/app.js", "/static/super.css", "/static/memoria.js", "/static/audit.js", "/static/vivo.js", "/static/dots.css", "/static/chiamata.css", "/static/chiamata.js", "/static/dettatura.css", "/static/dettatura.js", "/static/temi.css", "/static/temi.js", "/static/dots.js", "/static/smista-regole.js", "/static/smista.js", "/static/approvazione.css", "/static/approvazione.js", "/static/risorse.css", "/static/risorse.js", "/static/progetti.js", "/static/nome-assistente.js", "/static/progetti.css", "/static/icona-192.png", "/static/logo.svg"];
 // mai in cache, nemmeno se un giorno arrivassero da /static/
 const MAI = [/^\/api\//, /^\/term\//, /^\/vps/, /^\/pc-desktop/, /^\/assistenza/, /^\/tecnico/, /^\/_ponte\//];
 

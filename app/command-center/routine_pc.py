@@ -6,8 +6,8 @@ pianificazione. routine.py arriva dal Mac uguale (porta_su_windows.py) e in fond
         «\\Jarvis\\<nome>»); altre radici con «routine_pc_prefissi» in configurazione.json. Lettura: schtasks /query /fo CSV
         /v /nh (le colonne si leggono per posizione, uguali in ogni lingua di Windows).
   vps   le routine della VPS (timer systemd e cron) si vedono SOLO se configurazione.json ha «routine_vps» (il nome ssh
-        del server, es. quello della chiave del CRM) e SOLO quelle del CRM: «id descrizione comando» deve combaciare con
-        «routine_vps_filtro» (default FILTRO_VPS). Il confine è quello di PROMPT-PC-WINDOWS.md: il PC lavora solo sul CRM.
+        del server, es. quello di un progetto condiviso) e SOLO quelle condivise: «id descrizione comando» deve combaciare con
+        «routine_vps_filtro» (default FILTRO_VPS). Il PC vede solo le routine del server che lo riguardano.
         Dal PC non si creano routine nuove sulla VPS.
 
 Azioni sulle attività del PC:
@@ -34,8 +34,8 @@ from datetime import datetime
 R = None                       # il modulo routine, dopo aggancia()
 PREFISSI = ("\\Jarvis",)
 CARTELLA_NUOVE = "\\Jarvis\\"
-FILTRO_VPS = r"g140|odoo|crm|condiviso|report-direzione|servizio-(pranzo|cena|live)"
-GRUPPI_PC = {"gruppi": [{"id": "crm", "nome": "CRM", "alias": ["crm"]}, {"id": "pc", "nome": "Questo PC", "alias": ["pc"]}],
+FILTRO_VPS = r"condiviso"      # di base solo le routine del server con «condiviso» nel nome (configurabile)
+GRUPPI_PC = {"gruppi": [{"id": "condiviso", "nome": "Condiviso", "alias": ["condiviso"]}, {"id": "pc", "nome": "Questo PC", "alias": ["pc"]}],
              "routine": {}, "regole": []}
 IN_CORSO = ("running", "in esecuzione")
 SPENTA = ("disabled", "disabilitata", "disabilitato", "disattivata")
@@ -202,7 +202,7 @@ def leggi_win(forza=False):
         return _C["win"], _C["errore"]
 
 
-# ---------------------------------------------------------------- l'elenco: PC + VPS del CRM
+# ---------------------------------------------------------------- l'elenco: PC + routine condivise del server
 
 def _elenco(originale):
     def elenco(forza=False, extra_gruppi=()):
@@ -215,10 +215,10 @@ def _elenco(originale):
             if r.get("fonte") in ("vps", "cron"):
                 testo = f"{r['id']} {r.get('descrizione', '')} {r.get('comando', '')}"
                 if not filtro.search(testo):
-                    continue                                   # non è del CRM: dal PC non si vede
+                    continue                                   # non è condivisa: dal PC non si vede
                 r = dict(r)
                 v = esplicite.get(r["id"]) or {}
-                r["gruppo"], r["tipo"] = v.get("gruppo") or "crm", v.get("tipo") or ""
+                r["gruppo"], r["tipo"] = v.get("gruppo") or "condiviso", v.get("tipo") or ""
                 routine.append(r)
         for r in win:
             r = dict(r)

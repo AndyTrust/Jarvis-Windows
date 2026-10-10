@@ -1,12 +1,12 @@
-# Gli agenti di Jarvis di @@UTENTE@@
+# Gli agenti di @@NOME_ASSISTENTE@@ di @@UTENTE@@
 
-Questo Jarvis ha due agenti suoi. Il Jarvis chat master è l'orchestratore e risponde a @@UTENTE@@.
+Si parte da zero. Qui ci sono solo i due aiutanti generici dell'assistente (la chat master, che risponde a @@UTENTE@@):
 
 - `esecutore.md` — esegue compiti già decisi, passo per passo; si ferma davanti all'irreversibile.
+- `ricercatore-web.md` — cerca fonti su internet e riporta fatti con link e data.
 
-La memoria ha il suo gruppo, «Memoria», con l'agente `archivista`
-(`../memoria-@@UTENTE_SLUG@@/.claude/agents/archivista.md`).
-
-Un agente nuovo si può invocare per nome solo dalla sessione di Claude Code successiva alla sua creazione.
-Per crearne uno tuo: copia `esecutore.md`, cambia nome, descrizione e regole. I progetti che aggiungi possono
-avere i loro agenti nella loro cartella (vedi `docs/PERSONALIZZAZIONE.md`).
+I progetti e i loro agenti nascono quando servono: «crea il progetto …» a @@NOME_ASSISTENTE@@, oppure
+`/nuovo-progetto <nome>` e `/nuovo-agente <progetto> <ruolo>` in Claude Code (script `strumenti\crea_progetto.py` e
+`strumenti\crea_agente.py`). Ogni progetto ha il suo capogruppo `<id>-ceo` in `<cartella>\.claude\agents\`, che crea gli
+specialisti uno alla volta. Un agente nuovo si invoca per nome dalla sessione di Claude Code successiva alla sua creazione.
+Guida: `docs\wiki\Progetti-e-agenti.md`.

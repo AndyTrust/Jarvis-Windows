@@ -1,20 +1,4 @@
 {
-  "_nota": "Copia questo file in spazi.json e mettici i tuoi spazi. Uno spazio raccoglie progetti; ogni progetto ha una cartella e, se vuoi, un capogruppo (un profilo in <cartella>/.claude/agents/). ~ è la tua casa. Senza spazi.json il pannello usa questo esempio.",
-  "spazi": [
-    {
-      "id": "personale",
-      "nome": "Personale",
-      "memoria": "",
-      "report": "",
-      "progetti": [
-        {
-          "id": "jarvis",
-          "nome": "Jarvis",
-          "cartella": "~/jarvis",
-          "capogruppo": null,
-          "sezioni_memoria": []
-        }
-      ]
-    }
-  ]
+  "_nota": "Si parte da zero: nessun progetto. I progetti li crea strumenti/crea_progetto.py (o /nuovo-progetto <nome-progetto> in Claude Code) e finiscono in spazi.json. Forma di una voce: {\"id\": \"<id-spazio>\", \"nome\": \"<nome-spazio>\", \"memoria\": \"<memoria>/<nome-spazio>/<nome-spazio>.md\", \"report\": \"<memoria>/<nome-spazio>/Report\", \"progetti\": [{\"id\": \"<id-progetto>\", \"nome\": \"<nome-progetto>\", \"cartella\": \"<cartella-progetto>\", \"capogruppo\": \"<id-progetto>-ceo\"}]}.",
+  "spazi": []
 }

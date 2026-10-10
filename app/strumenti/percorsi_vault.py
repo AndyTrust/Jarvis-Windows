@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
-"""Dove sono il vault «Jarvis Brain», la cartella OneDrive e il repo di Jarvis, su Mac e su VPS (2026-10-04).
+"""Dove sono la memoria condivisa, la cartella OneDrive (se c'è) e il repo di Jarvis, su Mac e su VPS.
 
-Ordine per il vault:
-  1. variabile JARVIS_VAULT;
-  2. ~/OneDrive/Jarvis Brain  (Mac; sulla VPS è la copia locale a due vie
-     tenuta dal timer jarvis-vault-sync ogni 5 minuti: scrittura su disco locale, nessuna attesa di rete);
-  3. /mnt/onedrive/Jarvis Brain  (VPS, mount rclone).
-Se nessuno esiste si torna il percorso del Mac, così chi lo usa si comporta come prima.
-Ordine per il repo: JARVIS_REPO, ~/Jarvis, @@CARTELLA_SERVER@@/jarvis.
+Ordine per la memoria: variabile JARVIS_MEMORIA o JARVIS_VAULT, poi la chiave «memoria» di ~/.jarvis/percorsi.json
+(scelta all'installazione), poi ~/Jarvis-Memoria (predefinita).
+Ordine per il repo: JARVIS_REPO, chiave «repo» di percorsi.json, ~/Jarvis, /root/jarvis.
 
     python3 percorsi_vault.py      stampa cosa ha trovato
 """
@@ -16,9 +12,8 @@ import sys
 from pathlib import Path
 
 CASA = Path.home()
-OD_MAC = CASA / "OneDrive"
+OD_MAC = CASA / "Library/CloudStorage/OneDrive"
 OD_VPS = Path("/mnt/onedrive")
-NOME_VAULT = "Jarvis Brain"
 
 
 def _env(nome):
@@ -35,34 +30,38 @@ def radici_onedrive():
     return out
 
 
+PERCORSI = CASA / ".jarvis" / "percorsi.json"   # lo scrive strumenti/collega_memoria.py all'installazione
+
+
+def _percorsi(chiave):
+    """Il percorso scelto all'installazione (~/.jarvis/percorsi.json), se c'è."""
+    try:
+        import json
+        v = json.loads(PERCORSI.read_text(encoding="utf-8")).get(chiave)
+        return Path(os.path.expanduser(v)) if v else None
+    except (OSError, ValueError):
+        return None
+
+
 def vault():
-    p = _env("JARVIS_VAULT")
-    if p:
-        return p
-    for od in (OD_MAC, OD_VPS):
-        if (od / NOME_VAULT).is_dir():
-            return od / NOME_VAULT
-    return OD_MAC / NOME_VAULT
+    return _env("JARVIS_MEMORIA") or _env("JARVIS_VAULT") or _percorsi("memoria") or CASA / "Jarvis-Memoria"
 
 
 def onedrive():
-    """La cartella OneDrive che contiene il vault scelto (per tradurre «OD/…» di spazi.json)."""
-    v = vault()
-    if v.name == NOME_VAULT:
-        return v.parent
+    """La cartella OneDrive di questa macchina (per tradurre «OD/…» in spazi.json vecchi)."""
     r = radici_onedrive()
     return r[0] if r else OD_MAC
 
 
 def repo():
-    for p in (_env("JARVIS_REPO"), CASA / "Jarvis", Path("@@CARTELLA_SERVER@@/jarvis")):
+    for p in (_env("JARVIS_REPO"), _percorsi("repo"), CASA / "Jarvis", CASA / "jarvis", Path("/root/jarvis")):
         if p and (p / "strumenti").is_dir():
             return p
     return CASA / "Jarvis"
 
 
 def macchina():
-    """«mac» sul Mac di l'utente, «vps» altrove (JARVIS_MACCHINA per forzarlo nelle prove)."""
+    """«mac» sul Mac dell'utente, «vps» altrove (JARVIS_MACCHINA per forzarlo nelle prove)."""
     m = os.environ.get("JARVIS_MACCHINA", "").strip().lower()
     if m:
         return m

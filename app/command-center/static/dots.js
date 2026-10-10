@@ -1,5 +1,5 @@
 // Dots: le mascotte di OpenDots al posto dei volti degli agenti (2026-10-04, cc-dots-opus).
-// Richiesta di l'utente: «usa i dots avatar nel nostro Jarvis CRM». Immagini e scelta del colore da
+// Richiesta di l'utente: «usa i dots avatar nel nostro Jarvis». Immagini e scelta del colore da
 // CopilotKit/OpenDots (licenza MIT, Copyright (c) Atai Barkai): static/dots/LICENSE-OpenDots.txt.
 //
 // Come lavora, senza toccare app.js:
@@ -279,7 +279,7 @@
     const li = el.closest("[data-lid]");
     const L = g(() => ultimiLavori, []) || [];                                    // eslint-disable-line no-undef
     const l = li && L.find((x) => x && x.id === li.dataset.lid);
-    return l ? risolvi(l.chi) : null;           // «sentinella», «verifica CRM»…: non sono agenti, resta la lettera
+    return l ? risolvi(l.chi) : null;           // «sentinella», «verifica»…: non sono agenti, resta la lettera
   }
   function extra(dove, prima, info, classe) {
     let x = dove.querySelector(":scope > .dot-extra");

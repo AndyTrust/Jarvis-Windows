@@ -13,7 +13,7 @@ sovrascritti** rilanciando `INSTALLA.ps1` (a meno di `-RifaiFilePersonali`, che 
 | I tuoi progetti e i loro agenti | `command-center/spazi.json` | Vedi sotto. |
 | La lavagna (posizioni e fili) | `command-center/pannello.json` | Si modifica **dalla lavagna** (trascina, collega, «Nuova nota»); non serve toccare il file. |
 | Gli agenti | `.claude/agents/*.md` | Si modificano dalla scheda dell'agente nel pannello o a mano (frontmatter + istruzioni). |
-| La memoria | `.claude/memoria-<nome>/` | La riempie l'archivista. Puoi leggerla e correggerla a mano. |
+| La memoria | `.claude/memoria-<nome>/` e la memoria condivisa | La riempiono l'assistente e i ganci. Puoi leggerla e correggerla a mano. |
 
 ## Lavoro e vita privata
 
@@ -23,21 +23,13 @@ Jarvis li tratta come due terreni distinti e non porta un fatto dall'uno all'alt
 - **Vita privata:** promemoria, scadenze personali (`Scadenze personali.md`), cose da ricordare: stanno nella tua memoria personale.
 - Se vuoi un tono diverso nei due ambiti, scrivilo in `CLAUDE.md` («al lavoro sii formale, nel privato più leggero»).
 
-## Aggiungere un tuo progetto con i suoi agenti
+## Aggiungere un progetto con i suoi agenti
 
-1. Crea la cartella del progetto (per esempio `D:\Progetti\Ristorante`) con `.claude\agents\` dentro.
-2. Dalla lavagna: **+ Nuovo gruppo** (spazio, nome, capogruppo) e **+ Nuovo agente**; oppure a mano in `spazi.json`:
-
-```json
-{ "id": "ristorante", "nome": "Ristorante", "memoria": "D:/Progetti/Ristorante/memoria", "report": "D:/Progetti/Ristorante/report",
-  "progetti": [ { "id": "ristorante", "nome": "Ristorante", "cartella": "D:/Progetti/Ristorante",
-                  "capogruppo": "responsabile-ristorante", "sezioni_memoria": [], "memoria_propria": [] } ] }
-```
-
-3. Ogni agente è un file `.claude/agents/<nome>.md` con l'intestazione `name`, `description`, `tools`, `model`, `comunica`, `riporta_a`.
-   Un agente **nuovo si può invocare per nome solo dalla sessione di Claude Code successiva** alla sua creazione (le Missioni
-   e la lavagna lo vedono subito). Per partire, copia `.claude/agents/esecutore.md` e cambia nome, descrizione e regole.
-4. Se vuoi che la lavagna lo mostri, il gruppo con lo stesso nome dello spazio compare a sinistra: trascina gli agenti nella lavagna.
+Si parte da zero. Un progetto nasce quando lo chiedi all'assistente, con `/nuovo-progetto <nome>` in Claude Code o con
+«＋ Nuovo progetto» nella pagina Progetti del Command Center: `strumenti\crea_progetto.py` crea la voce in `spazi.json`,
+la cartella con `File\`, la memoria, `Stato.md` e il capogruppo `<id>-ceo`. Gli specialisti li crea il capogruppo con
+`strumenti\crea_agente.py`, uno alla volta. Un agente nuovo si invoca per nome dalla sessione di Claude Code successiva
+(lavagna e Missioni lo vedono subito). Guida completa: `docs\wiki\Progetti-e-agenti.md`.
 
 ## Obsidian (facoltativo)
 

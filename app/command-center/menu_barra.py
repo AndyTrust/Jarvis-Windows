@@ -20,7 +20,7 @@ ID = re.compile(r"[a-z0-9-]{1,30}")
 MAX_VOCI = 40
 NOME_FILE = "menu-barra.json"
 
-IN_BARRA_PARTENZA = ["chat", "lavagna", "agenti", "home", "missioni", "incarichi", "piani"]
+IN_BARRA_PARTENZA = ["chat", "lavagna", "progetti", "agenti", "home", "missioni", "incarichi", "piani"]
 # 2026-10-05 (l'utente): Server, VPS, Terminale e Schermo uniti in «computer», Tecnico dentro «telefono» (barra.js mappa i file vecchi)
 # 2026-10-05 (l'utente): «routine» (pagina Routine, routine.js) subito dopo «scadenze»
 IN_ALTRO_PARTENZA = ["scadenze", "routine", "registro", "memoria", "connessioni", "computer", "telefono"]

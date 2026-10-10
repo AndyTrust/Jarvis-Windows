@@ -48,7 +48,7 @@
   function creaVoceMenu() {
     const menu = document.querySelector(".schede.menu");
     if (menu && !menu.querySelector('a[data-vista="routine"]')) {
-      const a = el("a", { href: "#routine", "data-vista": "routine", title: "I lavori automatici di VPS (CRM) e PC: avvia, log, modifica" },
+      const a = el("a", { href: "#routine", "data-vista": "routine", title: "I lavori automatici di questo PC e del server (se c'è): avvia, log, modifica" },
         el("i", { class: "spia grigia" }), "Routine");
       const dopo = menu.querySelector('a[data-vista="scadenze"]');
       if (dopo) dopo.parentNode.insertBefore(a, dopo.nextSibling); else menu.append(a);   // Windows: «Scadenze» sta nel menu «Altro»
@@ -340,7 +340,7 @@
       if (S.prep && S.prep.nuova) N.nuova.append(riquadroPrep());
       if (S.esito && !S.modifica) N.nuova.append(riquadroEsito());
     } else if (S.esito && !S.modifica) N.nuova.append(riquadroEsito());
-    if (!d) { N.lista.textContent = ""; N.lista.append(el("li", { class: "ro-nota" }, "Carico le routine di VPS (CRM) e PC…")); return; }
+    if (!d) { N.lista.textContent = ""; N.lista.append(el("li", { class: "ro-nota" }, "Carico le routine…")); return; }
     disegnaFiltri();
     N.lista.textContent = "";
     const voci = filtrate();
@@ -371,7 +371,7 @@
     N.vista = el("section", { class: "vista vista-routine", "data-vista": "routine", "aria-labelledby": "ro-titolo-pagina" },
       el("div", { class: "ro-intro" },
         el("div", { class: "ro-intro-testa" }, el("h2", { id: "ro-titolo-pagina", class: "ro-pagina" }, "Routine"),
-          el("button", { type: "button", class: "ro-btn", onclick: () => aggiorna(true), title: "Rilegge VPS (CRM) e PC adesso" }, "⟳ Rileggi"),
+          el("button", { type: "button", class: "ro-btn", onclick: () => aggiorna(true), title: "Rilegge le routine adesso" }, "⟳ Rileggi"),
           el("button", { type: "button", class: "ro-btn ro-si", onclick: () => { apriNuova({}); } }, "+ Nuova")),
         el("p", { class: "ro-sotto-titolo" }, "I lavori automatici di VPS (timer e cron) e del PC. «Avvia ora» parte subito; modifiche e routine nuove mostrano il comando e aspettano la tua conferma. Ore di Roma."),
         N.stato),

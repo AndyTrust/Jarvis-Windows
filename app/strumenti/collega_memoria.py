@@ -15,12 +15,12 @@ Opzioni:
 
 Cosa fa con --applica (si può rilanciare: non duplica niente e NON CANCELLA MAI niente):
   1. struttura:  <memoria>\\Comune  <memoria>\\<spazio>  <memoria>\\Diario  <memoria>\\Report  <memoria>\\Sessioni
-                 <memoria>\\Claude-Code\\progetti  <memoria>\\Claude-Code\\piani  (+ Stato.md per ogni spazio)
-  2. collega ogni %USERPROFILE%\\.claude\\projects\\<progetto>\\memory a <memoria>\\Claude-Code\\progetti\\<progetto>\\memory
+                 <memoria>\\Claude\\projects  <memoria>\\Claude\\piani  (+ Stato.md per ogni spazio)
+  2. collega ogni %USERPROFILE%\\.claude\\projects\\<progetto>\\memory a <memoria>\\Claude\\projects\\<progetto>\\memory
      con una GIUNZIONE (mklink /J: non serve l'amministratore). Se la cartella ha già dei file li UNISCE alla memoria
      condivisa (un file con lo stesso nome e contenuto diverso si tiene con il suffisso .da-<pc>), rinomina l'originale
      in memory.prima-del-collegamento-<data> e solo dopo crea la giunzione. Lo dichiara riga per riga.
-  3. collega la cache dei piani di Claude Code (~\\.claude\\plans) a <memoria>\\Claude-Code\\piani, con la stessa regola.
+  3. collega la cache dei piani di Claude Code (~\\.claude\\plans) a <memoria>\\Claude\\piani, con la stessa regola.
   4. file d'ingresso per gli altri harness nella memoria: AGENTS.md (Codex, Cursor e altri), GEMINI.md, CLAUDE.md.
   5. registro di tutto in %USERPROFILE%\\.jarvis\\percorsi.json (lo leggono i ganci, Jarvis e gli agenti).
   6. cerca segreti dentro la memoria condivisa e li elenca (percorso e riga, mai il valore).
@@ -38,10 +38,20 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-PROGETTI = "Claude-Code/progetti"
-PIANI = "Claude-Code/piani"
-SESSIONI_CC = "Claude-Code/sessioni"
+PROGETTI = "Claude/projects"      # stessi nomi del Mac (2026-10-10)
+PIANI = "Claude/piani"
+SESSIONI_CC = "Claude/sessioni"
 CARTELLE_FISSE = ("Comune", "Diario", "Report", "Sessioni")
+
+
+def guardia_prova(home):
+    """Prove: con JARVIS_PROVA=1 si scrive solo in una casa sotto JARVIS_PROVA_RADICE (una o più cartelle separate da
+    os.pathsep), mai nella casa vera."""
+    if os.environ.get("JARVIS_PROVA") == "1":
+        radice = os.environ.get("JARVIS_PROVA_RADICE", "")
+        h = os.path.realpath(str(home))
+        if not radice or not any((h + os.sep).startswith(os.path.realpath(r).rstrip(os.sep) + os.sep) for r in radice.split(os.pathsep) if r):
+            sys.exit(f"JARVIS_PROVA=1: la casa {h} non è sotto JARVIS_PROVA_RADICE ({radice or 'non impostata'}): mi fermo")
 
 
 def adesso():
@@ -246,10 +256,12 @@ def main(argv=None):
     ap.add_argument("--harness", default=None)
     ap.add_argument("--con-sessioni", action="store_true")
     ap.add_argument("--home", default="")
+    ap.add_argument("--solo-progetti", action="store_true", help="collega solo le memorie di progetto nuove (gancio di fine sessione)")
     a = ap.parse_args(argv)
 
     home = Path(a.home).expanduser() if a.home else Path.home()
     jarvis_cfg = home / ".jarvis"
+    guardia_prova(home)
     risposte = leggi_json(jarvis_cfg / "risposte-avvio.json")
     percorsi_vecchi = leggi_json(jarvis_cfg / "percorsi.json")
     utente_json = {}
@@ -263,7 +275,7 @@ def main(argv=None):
     else:
         spazi = [s.get("nome", "") if isinstance(s, dict) else str(s) for s in (risposte.get("spazi") or [])]
         spazi = [s for s in spazi if s] or [x.get("nome") for x in percorsi_vecchi.get("spazi", []) if x.get("nome")]
-    spazi = [nome_spazio(s) for s in spazi] or ["Generale"]
+    spazi = [nome_spazio(s) for s in spazi]       # si parte da zero: le cartelle degli spazi le crea crea_progetto.py
     harness = [h.strip().lower() for h in (a.harness.split(",") if a.harness is not None else (risposte.get("harness") or [])) if h and h.strip()]
     nome_assistente = (risposte.get("assistente") or {}).get("nome") or utente_json.get("nome_assistente") or "Jarvis"
     utente = (risposte.get("utente") or {}).get("nome") or utente_json.get("nome") or ""
@@ -282,7 +294,9 @@ def main(argv=None):
                 righe.append(f"MANCA {p}")
     scrivi_se_manca(memoria / "Comune" / "Memoria.md",
                     f"# Memoria\n\n*Creata: {adesso()}*\n\nPorta d'ingresso della memoria condivisa. Spazi: "
-                    + ", ".join(f"[[{s}/Stato|{s}]]" for s in spazi) + ".\n\n## Profilo\n\n- Nome: " + (utente or "(da scrivere)")
+                    + (", ".join(f"[[{s}/Stato|{s}]]" for s in spazi) or "nessuno ancora (nascono con i progetti: ogni spazio ha <spazio>/Stato.md)")
+                    + ".\n\n## Dove sta cosa\n\n- Diario del giorno: `Diario/AAAA-MM-GG.md` (Fatto, Da fare, Errori da non ripetere)\n"
+                    "- Report: `Report/` · Sessioni: `Sessioni/` · memoria automatica di Claude Code: `Claude/projects/`\n\n## Profilo\n\n- Nome: " + (utente or "(da scrivere)")
                     + f"\n- Assistente: {nome_assistente}\n\n## Regole\n\n- Prove, non ipotesi.\n- Conferma prima dell'irreversibile.\n", righe, a.applica)
     for s in spazi:
         scrivi_se_manca(memoria / s / "Stato.md",
@@ -297,7 +311,8 @@ def main(argv=None):
     else:
         righe.append(f"AVVISO {projects} non c'è ancora: si crea alla prima sessione di Claude Code (poi rilancia, o lo fa il gancio)")
     # 3. cache dei piani
-    collega_cartella(home / ".claude" / "plans", memoria / PIANI, a.applica, righe, registro)
+    if not a.solo_progetti:
+        collega_cartella(home / ".claude" / "plans", memoria / PIANI, a.applica, righe, registro)
     # sessioni (facoltativo)
     if a.con_sessioni and projects.is_dir() and a.applica:
         n = copia_sessioni(projects, memoria / SESSIONI_CC, righe)

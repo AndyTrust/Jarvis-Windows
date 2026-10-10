@@ -1,8 +1,12 @@
 {
-  "_nota": "Modello delle risposte alle DOMANDE DI AVVIO. Claude Code scrive il file vero in %USERPROFILE%\\.jarvis\\risposte-avvio.json dopo che hai approvato il piano. Niente password, token o chiavi: quelle vanno in %USERPROFILE%\\.env.jarvis.",
+  "_nota": "Modello delle risposte alle DOMANDE DI AVVIO. Claude Code scrive il file vero in %USERPROFILE%\\.jarvis\\risposte-avvio.json dopo che hai approvato il piano. Niente password, token o chiavi: quelle vanno in %USERPROFILE%\\.env.jarvis. avvio: «zero» (nessun progetto: nascono quando li nomini) o «primo» (con primo_progetto: {\"nome\": \"...\", \"cartella\": \"...\" facoltativa}). creazione: «piano» (prima mostra cosa crea) o «automatica». Si parte sempre senza spazi né agenti precaricati.",
   "versione": 1,
-  "utente": { "nome": "Mario" },
-  "assistente": { "nome": "Jarvis" },
+  "utente": {
+    "nome": "Mario"
+  },
+  "assistente": {
+    "nome": "Jarvis"
+  },
   "lingua": "italiano",
   "tono": "cordiale, diretto e sintetico, con un filo di ironia",
   "fuso_orario": "Europe/Rome",
@@ -11,20 +15,32 @@
     "uso": "lavoro e vita privata, prima il lavoro"
   },
   "vita_privata": "sport la domenica, scadenze di casa",
-  "spazi": [
-    { "nome": "Negozio", "cartelle": ["%USERPROFILE%\\Documents\\Negozio"] },
-    { "nome": "Casa", "cartelle": [] }
-  ],
+  "avvio": "zero",
+  "primo_progetto": null,
+  "creazione": "piano",
   "memoria": {
     "cartella": "%USERPROFILE%\\Jarvis-Memoria",
     "tipo": "nuova"
   },
-  "harness": ["claude-code"],
-  "voce": { "attiva": true },
-  "telefono": { "attivo": false },
-  "vps": { "usa": false },
-  "posta": { "attiva": false, "caselle": [] },
-  "non_toccare": ["%USERPROFILE%\\Documents\\Contabilita"],
+  "harness": [
+    "claude-code"
+  ],
+  "voce": {
+    "attiva": true
+  },
+  "telefono": {
+    "attivo": false
+  },
+  "vps": {
+    "usa": false
+  },
+  "posta": {
+    "attiva": false,
+    "caselle": []
+  },
+  "non_toccare": [
+    "%USERPROFILE%\\Documents\\Contabilita"
+  ],
   "installazione": {
     "cartella": "%USERPROFILE%\\jarvis",
     "porta": 7777

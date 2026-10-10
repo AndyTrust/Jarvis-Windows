@@ -30,8 +30,8 @@ Struttura della memoria condivisa:
 ├── Diario/          una nota al giorno
 ├── Report/
 ├── Sessioni/        una riga per sessione di Claude Code (la scrivono i ganci)
-├── Claude-Code/progetti/<progetto>/memory   la memoria automatica di Claude Code (giunzioni)
-└── Claude-Code/piani/  i piani di Claude Code (giunzione da %USERPROFILE%\.claude\plans)
+├── Claude/projects/<progetto>/memory   la memoria automatica di Claude Code (giunzioni)
+└── Claude/piani/  i piani di Claude Code (giunzione da %USERPROFILE%\.claude\plans)
 ```
 
 Il nome con cui chiamare l'utente e il nome dell'assistente stanno in `%USERPROFILE%\jarvis\utente.json` (campi `nome` e `nome_assistente`). Leggili e usali; non inventarli.
@@ -90,7 +90,7 @@ Ogni lancio fa il giro standard, in quest'ordine:
 
 1. **Parte meccanica, prima a secco**: `python %USERPROFILE%\.claude\skills\aggiorna-memoria\strumenti\giro_memoria.py`, poi `--applica`. Allinea gli indici `MEMORY.md` della memoria di Claude, mette `modified: AAAA-MM-GG HH:MM` dove manca, segnala link rotti e note ferme da oltre 60 giorni.
 2. **Cose superate**: `obsoleti.json` elenca i termini che l'utente ha detto di non usare più. Il giro segnala ogni file vivo che li cita. Quando l'utente dice «non lo usiamo più», aggiungi una voce.
-3. **Giudizio** (sola lettura): per ogni nota di `%USERPROFILE%\.claude\projects\*\memory` (sono giunzioni verso `<memoria>\Claude-Code\progetti`) decidi TIENI · AGGIORNA · UNISCI · TOGLI. La memoria di Claude tiene solo quello che non sta nella memoria condivisa: preferenze, correzioni di comportamento, puntatori.
+3. **Giudizio** (sola lettura): per ogni nota di `%USERPROFILE%\.claude\projects\*\memory` (sono giunzioni verso `<memoria>\Claude\projects`) decidi TIENI · AGGIORNA · UNISCI · TOGLI. La memoria di Claude tiene solo quello che non sta nella memoria condivisa: preferenze, correzioni di comportamento, puntatori.
 4. **Esecuzione dopo il sì dell'utente**: le note tolte si spostano in `<memoria>/Comune/_archivio/AAAAMMGG/`, mai `rm`.
 5. **Resoconto all'utente**: cosa è fatto, con quale prova, cosa non è verificato, cosa resta.
 
@@ -101,18 +101,18 @@ Prima di cancellare una sessione: `Get-Process claude -ErrorAction SilentlyConti
 ## Ganci automatici
 
 `INSTALLA.ps1` (tramite `claude-config\installa_claude.py`) mette in `%USERPROFILE%\.claude\settings.json`, unendo senza
-toccare i ganci che ci sono già e con una copia di sicurezza, tre ganci che lanciano
-`%USERPROFILE%\.claude\hooks\stato_progetti.py` con il Python di `.venv`:
+toccare i ganci che ci sono già e con una copia di sicurezza, i ganci della memoria automatica (Python di `.venv`):
 
-| Evento | Quando | Cosa fa |
+| Evento | Gancio | Cosa fa |
 |---|---|---|
-| `Stop` | a ogni fine risposta | aggiorna `<memoria>\<spazio>\Stato.md` con la parte nuova della trascrizione |
-| `PreCompact` | prima di compattare il contesto | come sopra, così niente si perde |
-| `SessionEnd` | a fine sessione | come sopra, più una riga nel `Diario\` del giorno e `collega_memoria.py --applica --zitto` |
+| `Stop`, `PreCompact`, `SessionEnd` | `stato_avanzamento.py` | rifà la parte automatica di `<memoria>\<spazio>\Stato.md` e aggiunge al diario del giorno solo le voci nuove; a fine sessione collega le memorie dei progetti nuovi |
+| `UserPromptSubmit` | `conferma_salva.py` | alle conferme («ok», «perfetto», «va bene», «chiuso», «fatto», «salva») lancia il giro e chiede a questa skill il salvataggio con giudizio |
+| commit e push | ganci git di `strumenti\ganci_git.py` | `stato_avanzamento.py --giro` |
 
-Quello che scrivono è meccanico: file modificati, strumenti finiti in errore e le righe che Claude scrive nelle risposte
-nella forma `FATTO: …`, `DA FARE: …`, `ERRORE: …` (un `FATTO` uguale a un `DA FARE` lo toglie dalla lista). Il giudizio
-resta a questa skill. Prova a mano: `python stato_progetti.py --prova <trascrizione.jsonl> --cwd <cartella>`.
+Quello che scrivono è meccanico: FATTO / DA FARE / ERRORI vengono da `.claude\memoria\MEMORIA.md` del progetto (che
+scrive questa skill) e dai diari degli agenti. Il giudizio resta a questa skill. Prova a mano:
+`python %USERPROFILE%\.claude\hooks\stato_avanzamento.py --giro --evento prova --cwd <cartella del progetto>`.
+Guida: `docs\wiki\Memoria-condivisa.md`.
 
 ## Regole che non decadono
 

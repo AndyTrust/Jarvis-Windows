@@ -1,4 +1,4 @@
-﻿# INSTALLA.ps1 — installa Jarvis Privato Windows su questo PC, da zero e senza configurazioni a mano.
+﻿# INSTALLA.ps1 — installa Jarvis per Windows su questo PC, da zero e senza configurazioni a mano.
 #
 #   powershell -ExecutionPolicy Bypass -File .\INSTALLA.ps1
 #
@@ -36,7 +36,8 @@ param(
     [string]$Memoria = "",                          # la memoria condivisa (di base %USERPROFILE%\Jarvis-Memoria)
     [string]$Lingua = "",                           # lingua delle risposte (di base italiano)
     [string]$FusoOrario = "",                       # es. Europe/Rome (di base quello di Windows)
-    [string]$NonToccare = ""                        # cartelle o cose che l'assistente non deve mai toccare
+    [string]$NonToccare = "",                       # cartelle o cose che l'assistente non deve mai toccare
+    [string]$PrimoProgetto = ""                     # facoltativo: il primo progetto da creare subito (si parte da zero)
 )
 
 $ErrorActionPreference = "Stop"
@@ -98,7 +99,8 @@ try {
         if ($R.installazione.porta) { $Porta = [int]$R.installazione.porta }
         if ($R.voce -and ($R.voce.attiva -eq $false)) { $SenzaModelliVoce = [switch]$true }
         if (-not $NonToccare -and $R.non_toccare) { $NonToccare = (@($R.non_toccare) | Where-Object { $_ }) -join "; " }
-        if ($R.spazi) { $Spazi = @($R.spazi | ForEach-Object { [string]$_.nome } | Where-Object { $_ }) }
+        # si parte da zero (2026-10-10): niente elenco di spazi, al massimo il primo progetto da creare subito
+        if (-not $PrimoProgetto -and $R.primo_progetto -and $R.primo_progetto.nome) { $PrimoProgetto = ([string]$R.primo_progetto.nome).Trim() }
         if ($R.harness) { $Harness = @($R.harness | Where-Object { $_ }) }
         $Silenzioso = [switch]$true
         Ok "Risposte di avvio lette da $FileRisposte"
@@ -238,7 +240,7 @@ try {
     }
     $app = Join-Path $Radice "app"
     $n = 0; $r = 0
-    Get-ChildItem $app -Recurse -File | ForEach-Object {
+    Get-ChildItem $app -Recurse -File -Force | Where-Object { $_.FullName -notmatch "[\\/]__pycache__[\\/]" } | ForEach-Object {   # -Force: anche app\.claude\hooks (cartella che comincia col punto)
         $rel = $_.FullName.Substring($app.Length).TrimStart("\")
         if ($_.Name -like "*.tpl") {
             $dest = Join-Path $Destinazione ($rel -replace "\.tpl$", "")
@@ -264,7 +266,6 @@ try {
         @("agents\esecutore.md.tpl",           ".claude\agents\esecutore.md"),
         @("agents\ricercatore-web.md.tpl",     ".claude\agents\ricercatore-web.md"),
         @("agents\LEGGIMI.md.tpl",             ".claude\agents\LEGGIMI.md"),
-        @("agents\archivista.md.tpl",          ".claude\memoria-$Slug\.claude\agents\archivista.md"),
         @("memoria\MEMORIA.md.tpl",            ".claude\memoria-$Slug\MEMORIA.md"),
         @("memoria\battute-lunedi.md.tpl",     ".claude\memoria-$Slug\battute-lunedi.md")
     )
@@ -346,8 +347,8 @@ try {
         }
         # 2026-10-05: le altre skill del repo (aggiorna-memoria, brainstorming, riunione-agenti, systematic-debugging,
         # verification-before-completion, writing-plans, writing-skills) e i ganci di sicurezza (guardia dei comandi per
-        # Git Bash, guardia delle connessioni). Sono codice: si riscrivono a ogni aggiornamento. «sessioni.py» resta nel
-        # repo ma non si installa: lavora sul vault, che su questo PC non c'è.
+        # Git Bash, guardia delle connessioni) e, dal 2026-10-10, la skill nuovo-progetto. Sono codice: si riscrivono a
+        # ogni aggiornamento.
         Get-ChildItem (Join-Path $cfg "skills") -Directory | Where-Object { $_.Name -ne "brain" } | ForEach-Object {
             $sk = Join-Path $cc ("skills\" + $_.Name)
             $radiceSk = $_.FullName
@@ -357,12 +358,18 @@ try {
                 else { $d = Split-Path -Parent $dest; New-Item -ItemType Directory -Force -Path $d | Out-Null; Copy-Item $_.FullName $dest -Force }
             }
         }
-        Ok "skill di lavoro (aggiorna-memoria, brainstorming, riunione-agenti, debugging, verifiche, piani, skill)"
-        foreach ($g in @("guardia_comandi.py", "connessioni_guardia.py", "stato_progetti.py")) {
+        Ok "skill di lavoro (aggiorna-memoria, nuovo-progetto, brainstorming, riunione-agenti, debugging, verifiche, piani, skill)"
+        foreach ($g in @("guardia_comandi.py", "connessioni_guardia.py", "stato_avanzamento.py", "conferma_salva.py")) {
             $src = Join-Path $cfg ("hooks\" + $g)
             if (Test-Path $src) { Copy-Item $src (Join-Path $cc ("hooks\" + $g)) -Force }
         }
-        Ok "ganci: guardia_comandi.py, connessioni_guardia.py e stato_progetti.py (stato dei progetti aggiornato da solo)"
+        Ok "ganci: guardia_comandi.py, connessioni_guardia.py, stato_avanzamento.py e conferma_salva.py (stato e diario aggiornati da soli)"
+        # 2026-10-10: i comandi /nuovo-progetto e /nuovo-agente valgono in ogni cartella (si riscrivono a ogni aggiornamento)
+        $cmdSrc = Join-Path $cfg "commands"
+        if (Test-Path $cmdSrc) {
+            Get-ChildItem $cmdSrc -File -Filter *.md | ForEach-Object { Salva (Join-Path $cc ("commands\" + ($_.Name -replace "\.tpl$", ""))) (Render (Leggi $_.FullName) $false) }
+            Ok "comandi di Claude Code: /nuovo-progetto e /nuovo-agente"
+        }
         $md = Join-Path $env:TEMP "jarvis-claude-md.txt"
         Salva $md (Render (Leggi (Join-Path $cfg "CLAUDE-globale.md.tpl")) $false)
         & $PyVenv (Join-Path $cfg "installa_claude.py") --jarvis $Destinazione --claude-md $md --python $PyVenv
@@ -375,6 +382,12 @@ try {
             if ($Harness.Count -gt 0) { $argCm += @("--harness", ($Harness -join ",")) }
             & $PyVenv @argCm
             if ($LASTEXITCODE -ne 0) { Avviso "Il collegamento della memoria non è riuscito: rilancia strumenti\collega_memoria.py --applica" } else { Ok "memoria condivisa collegata in $Memoria (elenco in ~\.jarvis\percorsi.json)" }
+        }
+        # si parte da zero: nessun progetto. Se nelle risposte c'è il primo progetto, nasce adesso (crea_progetto.py è
+        # idempotente: rilanciando l'installazione non si raddoppia niente)
+        if ($PrimoProgetto) {
+            & $PyVenv (Join-Path $Destinazione "strumenti\crea_progetto.py") $PrimoProgetto --memoria $Memoria
+            if ($LASTEXITCODE -ne 0) { Avviso "Il primo progetto non è stato creato: chiedilo a $NomeAssistente o usa /nuovo-progetto" } else { Ok "primo progetto creato: $PrimoProgetto (con il suo capogruppo)" }
         }
     }
 
@@ -428,7 +441,10 @@ try {
             # 2026-10-10: il giro notturno dei quaderni degli agenti (sul Mac era launchd com.jarvis.giro-apprendimento alle 06:40)
             $a3 = New-ScheduledTaskAction -Execute (Join-Path $Venv "Scripts\pythonw.exe") -Argument "strumenti\giro_apprendimento.py" -WorkingDirectory $Destinazione
             Register-ScheduledTask -TaskName "Jarvis Giro notturno" -Action $a3 -Trigger (New-ScheduledTaskTrigger -Daily -At "06:40") -Settings $impost -Force | Out-Null
-            Ok "attività «Jarvis Avvio» (all'accesso), «Jarvis Battito» (ogni 15 minuti) e «Jarvis Giro notturno» (06:40)"
+            # 2026-10-10: la pulizia di ~\.claude (memorie unite alla memoria condivisa, trascrizioni vecchie archiviate)
+            $a4 = New-ScheduledTaskAction -Execute (Join-Path $Venv "Scripts\pythonw.exe") -Argument "strumenti\pulisci_claude.py --applica --quiet" -WorkingDirectory $Destinazione
+            Register-ScheduledTask -TaskName "Jarvis Pulizia" -Action $a4 -Trigger (New-ScheduledTaskTrigger -Daily -At "06:20") -Settings $impost -Force | Out-Null
+            Ok "attività «Jarvis Avvio» (all'accesso), «Jarvis Battito» (ogni 15 minuti), «Jarvis Pulizia» (06:20) e «Jarvis Giro notturno» (06:40)"
         } catch { Avviso ("Attività pianificate non create: " + $_.Exception.Message) }
     }
 
@@ -490,7 +506,7 @@ try {
     Scrivi "  - $Destinazione\utente.json e CLAUDE.md: come $NomeAssistente ti chiama, il tuo profilo e come si comporta"
     Scrivi "  - $Memoria\<spazio>\Stato.md: lo stato dei progetti, aggiornato da solo a ogni risposta di Claude Code"
     Scrivi "  - $Destinazione\command-center\configurazione.json: siti da tenere d'occhio, comandi rapidi, porta"
-    Scrivi "  - $Destinazione\command-center\spazi.json: i tuoi progetti e i loro agenti (lavagna e Missioni)"
+    Scrivi "  - i progetti: si parte da zero. Di' a $NomeAssistente «crea il progetto ...» o scrivi /nuovo-progetto <nome> in Claude Code"
     Scrivi "  - apri una NUOVA sessione di Claude Code perché i ganci partano"
     Scrivi "Per aprire il pannello: doppio clic su «Jarvis Command Center» sul Desktop."
     exit 0

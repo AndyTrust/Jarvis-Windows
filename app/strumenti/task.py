@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Le caselle di Jarvis: ogni richiesta di l'utente è una casella nella nota del giorno.
+"""Le caselle di Jarvis: ogni richiesta dell'utente è una casella nella nota del giorno.
 
-l'utente (19/09/2026): «usare dei task che si possano spuntare, così vai a leggere quello
+L'utente (19/09/2026): «usare dei task che si possano spuntare, così vai a leggere quello
 che abbiamo fatto se non hai aggiornato». Le caselle stanno nel diario del vault,
 sezione «Caselle del giorno»:
 
@@ -26,16 +26,17 @@ if sys.platform == "win32":     # la memoria di chi usa il PC (utente.json), non
         VAULT = _RADICE / json.loads((_RADICE / "utente.json").read_text(encoding="utf-8"))["memoria_dir"]
     except (OSError, ValueError, KeyError):
         VAULT = _RADICE / ".claude" / "memoria"
-else:
-    VAULT = Path.home() / "OneDrive/Jarvis Brain"
+else:                           # la memoria condivisa (~/.jarvis/percorsi.json), predefinita ~/Jarvis-Memoria
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import crea_progetto as _cp
+    VAULT = _cp.memoria()
 MESI = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto",
         "Settembre", "Ottobre", "Novembre", "Dicembre"]
 TITOLO = "## Caselle del giorno"
 
 
 def nota(giorno):
-    cartella = VAULT / "Memoria" / "00 Comune" / "Diario" / f"{giorno.month:02d} - {MESI[giorno.month - 1]} {giorno.year}"
-    return cartella / f"{giorno.isoformat()}.md"
+    return VAULT / "Diario" / f"{giorno.isoformat()}.md"      # il diario del giorno: <memoria>/Diario/AAAA-MM-GG.md
 
 
 def apri(giorno, crea=False):

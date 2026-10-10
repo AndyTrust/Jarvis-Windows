@@ -25,11 +25,11 @@ SEGRETO = re.compile(
 
 
 def banca_da_testo(testo):
-    """Quale banca di memoria nomina un percorso o una sintesi: 'privata', 'personale', 'crm' o ''.
+    """Quale banca di memoria nomina un percorso o una sintesi: 'privata', 'personale', 'condivisa' o ''.
     Guarda solo il testo, non apre niente."""
     t = str(testo or "").replace("\\", "/").lower()
-    if "crm" in t and ".claude/memoria" in t:
-        return "crm"
+    if "jarvis-memoria" in t or "/claude/projects/" in t:
+        return "condivisa"
     if ".claude/memoria-" in t:
         return "personale"
     if re.search(r"\.claude/memoria(/|$|\s|\"|')", t):

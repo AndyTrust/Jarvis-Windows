@@ -63,7 +63,7 @@ Come si valuta:
 6. Read, Glob, Grep, LS, NotebookRead, WebFetch e WebSearch stanno SEMPRE nelle regole «ask» (senza, Claude Code consente da
    solo le letture nella cartella di lavoro). In più gli strumenti nominati in regole «chiedi» o «nega» si aggiungono alle regole «ask» passate a claude con `--settings`. Senza questo, Claude Code li consentirebbe da solo e il gestore non li vedrebbe. Con `"*"` non si può: una «nega» su `"*"` vale solo per gli strumenti che arrivano già al gestore (Bash, scritture, regole «allow» dei settings).
 
-Il lancio in modo «approvazione» usa `--setting-sources user`: i settings di progetto (le «allow» e gli hook del CRM su
+Il lancio in modo «approvazione» usa `--setting-sources user`: i settings di progetto (le «allow» e gli hook di un progetto su
 OneDrive, le `additionalDirectories`) non si caricano. Il `CLAUDE.md` della cartella arriva con `--add-dir <cartella>` e
 `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1`, gli agenti del progetto con `--agents`. Le missioni in lettura o «dal
 sito» fanno lo stesso con il SDK.

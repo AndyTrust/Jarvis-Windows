@@ -1,0 +1,5 @@
+{
+  "_nota": "Ritocchi alla riunione giornaliera (strumenti/riunione.py). I gruppi nascono da soli dai progetti di command-center/spazi.json (capogruppo, specialisti, Stato.md, indice dei file): qui si scrive solo per cambiare un gruppo (stesso id del progetto: fonti, scadenze, metriche, revisore) o per aggiungerne uno a mano. MEM = la memoria condivisa (~/.jarvis/percorsi.json). Jarvis parte senza gruppi.",
+  "grazia_giorni": 30,
+  "gruppi": {}
+}

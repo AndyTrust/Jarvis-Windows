@@ -17,7 +17,7 @@ $d = [Environment]::GetFolderPath("Desktop")
 3. **I ganci di Claude Code.** In `%USERPROFILE%\.claude` c'è la copia `settings.json.bak-jarvis-<data>` fatta prima
    della prima installazione: puoi rimetterla al posto di `settings.json`. Oppure apri `settings.json` e togli le voci
    che nominano `jarvis_avvio.py`, `jarvis_status.py`, `guardia_comandi.py`, `connessioni_guardia.py`,
-   `stato_progetti.py`. Poi togli quei file da `%USERPROFILE%\.claude\hooks\` e la sezione «Chi usa questo PC» da
+   `stato_avanzamento.py`, `conferma_salva.py`. Poi togli quei file da `%USERPROFILE%\.claude\hooks\` e la sezione «Chi usa questo PC» da
    `%USERPROFILE%\.claude\CLAUDE.md`. Le skill stanno in `%USERPROFILE%\.claude\skills\`.
 
 4. **Le giunzioni della memoria.** Ogni `%USERPROFILE%\.claude\projects\<progetto>\memory` collegato è una giunzione.
@@ -30,7 +30,7 @@ $d = [Environment]::GetFolderPath("Desktop")
    }
    ```
 
-   Se vuoi riportare le note nella cartella del progetto, copiale da `<memoria>\Claude-Code\progetti\<progetto>\memory`.
+   Se vuoi riportare le note nella cartella del progetto, copiale da `<memoria>\Claude\projects\<progetto>\memory`.
    Le cartelle `memory.prima-del-collegamento-<data>` sono gli originali di prima: puoi rimetterle al posto di `memory`.
    Stessa cosa per `%USERPROFILE%\.claude\plans`.
 

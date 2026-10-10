@@ -8,7 +8,7 @@
 #
 # server, macchina remota (anche dentro nomi come LettoreVPS, vps-tuo): le connessioni (strumenti/connessioni.py), il portiere, le sentinelle e i ponti la chiamano così
 vps
-# il CRM su cui lavora il PC (Odoo): connettore, pagine del registro, contratti
+# il nome di un gestionale diffuso (Odoo), citato come esempio di database nei testi tecnici
 \bodoo\b
 odoo[-_][a-z0-9_-]+
 # «voodoo constants» nella guida writing-skills
@@ -18,10 +18,8 @@ telegram
 # nominati solo come tecnologie dismesse (obsoleti.json della skill aggiorna-memoria) o cartelle da saltare
 supabase
 \basterisk\b
-# il capogruppo degli agenti nella cartella OneDrive del CRM, l'unico progetto del PC (incarichi.py, prove)
-\bceo-ai\b
-# il prefisso tecnico dei capigruppo, minuscolo (file ceo-*.md, chiave «ceo» di sincro/controlla.py): è così che si
-# riconosce ceo-ai. Solo minuscolo: «CEO» nel testo lo sostituisce porta_su_windows.py con «capogruppo»
+# il suffisso tecnico dei capigruppo, minuscolo: <id-progetto>-ceo (crea_progetto.py), chiave «ceo» di
+# sincro/controlla.py. Solo minuscolo: nel testo si scrive «capogruppo»
 (?-i:\bceo\b)
 # disegni SVG delle icone: i numeri dei tracciati sembrano indirizzi IP (2026-10-10)
 <path d="[^"]*"
@@ -29,3 +27,5 @@ supabase
 -----BEGIN OPENSSH PRIVATE KEY-----\S*FINTA
 # il link di affiliazione della VPS facoltativa, dichiarato come tale (docs/affiliazione.txt, 2026-10-10)
 https://www\.hostinger\.com/it/prezzi\?REFERRALCODE=ITALOMARZIANO
+/users/(x|tu)/
+c:\\users\\tu\\

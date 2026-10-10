@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Il registro delle attività degli agenti (proposta del 2026-10-02, audit della lavagna).
 
-l'utente: «è importante vedere nella lavagna come stanno lavorando ogni singolo agente, come
+L'utente: «è importante vedere nella lavagna come stanno lavorando ogni singolo agente, come
 richieste inviate e ricevute». Il bus .jarvis_status tiene solo gli ultimi 8 lanci e li
 sovrascrive; registro.log delle missioni è testo da leggere, non un indice. Qui ogni
 passaggio diventa una riga JSON, in un file al giorno, tenuto 14 giorni.
@@ -16,7 +16,7 @@ Chi scrive (sempre con registra()):
 Chi legge: server.py, /api/agente-attivita e /api/agenti-attivita.
 
 Una riga:
-  {"v":1, "ts":1790926138.17, "ev":"richiesta", "id":"toolu_…", "da":"jarvis", "a":"crm:commercialista",
+  {"v":1, "ts":1790926138.17, "ev":"richiesta", "id":"toolu_…", "da":"jarvis", "a":"<progetto>:commercialista",
    "testo":"controlla le fatture", "fonte":"hook", "sessione":"…", "missione":"…", "cwd":"…",
    "modello":"sonnet", "sfondo":true, "durata_s":69.5, "esito":"…", "errore":"…"}
   ev: richiesta | partito | risposta | errore | rimandato
@@ -38,8 +38,9 @@ from pathlib import Path
 
 WIN = sys.platform == "win32"
 # Windows (unione del ramo windows, 02/10/2026): OneDrive sta in ~/OneDrive e Jarvis nella cartella di questo file
-_OD = Path.home() / ("OneDrive" if WIN else "OneDrive")
-EXTRA = Path(os.environ.get("JARVIS_ATTIVITA_EXTRA") or (_OD / "Progetto CRM/_CONDIVISO-AGENTI/registro"))
+_OD = Path.home() / ("OneDrive" if WIN else "Library/CloudStorage/OneDrive")
+# registro condiviso fra più macchine: solo se configurato (JARVIS_ATTIVITA_EXTRA), altrimenti spento
+EXTRA = Path(os.environ.get("JARVIS_ATTIVITA_EXTRA") or (Path.home() / ".jarvis" / "registro-condiviso-non-configurato"))
 DIR = Path(os.environ.get("JARVIS_ATTIVITA_DIR") or (
     Path(__file__).resolve().parents[1] / "backtalk" / "attivita" if WIN else Path.home() / "my-agent" / "backtalk" / "attivita"))
 # Il PC Windows scrive ANCHE nel registro condiviso EXTRA/attivita-<NOME-PC>.jsonl (efae908 del ramo windows):
@@ -184,7 +185,7 @@ class Lettore:
         tieni = {file_del_giorno(date.today() - timedelta(days=i)).name for i in range(self.giorni)}
         if any(n not in tieni and not n.startswith(("extra:", "remoti:")) for n in self.offset):   # è passata la mezzanotte: si riparte
             self.offset, self.righe = {}, []
-        # 02/10/2026: l'attività dei PC Windows (stesso formato, un file per PC) sta nella cartella condivisa del CRM
+        # 02/10/2026: l'attività dei PC Windows (stesso formato, un file per PC) sta nella cartella condivisa (se configurata)
         extra = sorted(EXTRA.glob("attivita-*.jsonl")) if EXTRA.is_dir() else []
         if CONDIVIDI:       # il file di questo PC è una copia ridotta del registro locale: non si conta due volte
             extra = [x for x in extra if x.name != f"attivita-{nome_pc()}.jsonl"]
@@ -247,7 +248,7 @@ def ricomponi(eventi, adesso=None, senza_risposta_s=1800):
             r["errore"] = e.get("errore") or e.get("testo") or "rimandato"
         elif ev in ("risposta", "errore"):
             r["fine"] = e.get("ts")
-            # 2026-10-07: «codice di uscita 143/-15» è lo Stop di l'utente (SIGTERM), non un errore (anche le righe vecchie)
+            # 2026-10-07: «codice di uscita 143/-15» è lo Stop dell'utente (SIGTERM), non un errore (anche le righe vecchie)
             fermato = ev == "errore" and re.search(r"codice di uscita (143|-15)\b", str(e.get("errore") or ""))
             r["stato"] = "errore" if ev == "errore" and not fermato else "finito"
             if fermato:

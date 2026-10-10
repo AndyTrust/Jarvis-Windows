@@ -1,4 +1,4 @@
-// Vista Memoria a tre colonne (personale, privata, CRM).
+// Vista Memoria a tre colonne (personale, privata, condivisa del progetto agenti).
 // Dati: GET /api/memoria-banche (puo' mancare: allora "non disponibile").
 // Regole: la colonna privata mostra SOLO una spia ok/assente. Nessun pulsante copia tra banche.
 // Tutto il testo entra nel DOM con textContent. Il token e' quello gia' usato da app.js.
@@ -7,7 +7,7 @@
   const BANCHE = [
     { id: "personale", nome: "Banca personale" },
     { id: "privata", nome: "Banca privata" },
-    { id: "crm", nome: "Banca CRM (condivisa)" },
+    { id: "condivisa", nome: "Banca condivisa (progetto degli agenti)" },
   ];
   const ETICHETTE = { note: "note", ultimo_aggiornamento: "ultimo aggiornamento", aggiornata: "ultimo aggiornamento", indice: "indice",
     diario_oggi: "diario oggi", diario: "diario oggi", registro: "registro", da_allineare: "da allineare", messaggio: "nota" };
@@ -37,7 +37,7 @@
   }
   const rileggi = () => (V ? V.esegui("memoria") : leggi());
 
-  // trova la banca nella risposta: oggetto {personale,privata,crm}, oppure {banche:{...}} o array con campo id/nome
+  // trova la banca nella risposta: oggetto {personale,privata,condivisa}, oppure {banche:{...}} o array con campo id/nome
   function banca(id) {
     if (!dati) return null;
     const radice = dati.banche || dati;
@@ -164,7 +164,7 @@
       rif.tabs.appendChild(t);
     }
     // la firma non contiene mai il contenuto di privata
-    const firma = JSON.stringify([dati ? [banca("personale"), banca("crm"), spiaPrivata()] : null, errore, colonnaAttiva]);
+    const firma = JSON.stringify([dati ? [banca("personale"), banca("condivisa"), spiaPrivata()] : null, errore, colonnaAttiva]);
     if (!anima && firma === firmaGriglia) return;
     firmaGriglia = firma;
     rif.griglia.className = "mem3-griglia" + (anima ? " mem3-anima" : "");

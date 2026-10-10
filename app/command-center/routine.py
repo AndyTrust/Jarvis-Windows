@@ -3,9 +3,9 @@
 andata l'ultima volta, e i comandi per avviarli, leggerne il log, cambiarli o crearne di nuovi.
 
 Fonti (lette dal server, mai a mano):
-  vps   i timer systemd della VPS jarvis-*, crm1-*, progetto-tre-*, cc-ponte-* (systemctl show + list-timers -o json)
+  vps   i timer systemd del server jarvis-* e cc-ponte-* (systemctl show + list-timers -o json)
   cron  il crontab di root della VPS (crontab -l), una routine per riga; «#ROUTINE-PAUSA » davanti = in pausa
-  mac   ~/Library/LaunchAgents/com.jarvis.*, com.Progetto Uno.*, com.progetto-due.*, com.progetto-tre.* (+ launchctl list)
+  mac   ~/Library/LaunchAgents/com.jarvis.* (+ launchctl list)
 La VPS sta su UTC: le ore si mostrano in Europe/Rome. Una sola chiamata ssh per tutta la VPS, in cache CACHE_S.
 
 Azioni:
@@ -46,7 +46,7 @@ QUI = Path(__file__).resolve().parent
 FILE_GRUPPI = Path(os.environ.get("CC_ROUTINE_GRUPPI") or QUI / "routine-gruppi.json")
 DIR = Path(os.environ.get("CC_ROUTINE_DIR") or Path.home() / ".jarvis-locale" / "jarvis-cc" / "routine")
 AGENTI_MAC = Path(os.environ.get("CC_ROUTINE_LAUNCHAGENTS") or Path.home() / "Library" / "LaunchAgents")
-VPS = os.environ.get("CC_ROUTINE_VPS") or "server-tuo"
+VPS = os.environ.get("CC_ROUTINE_VPS") or ""        # il server è facoltativo: senza nome non si chiama nessuno
 SSH = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", "-o", "ServerAliveInterval=5"]
 MAC = sys.platform == "darwin"
 
@@ -55,7 +55,7 @@ PREP_MIN_S = 1.0          # il «Conferma» non può arrivare insieme al «Prepa
 PREP_MAX_S = 600          # un comando preparato vale 10 minuti
 SEGUI_MAX_S = 30 * 60     # oltre, l'esecuzione resta «in corso da molto»
 SEP = "@@CC-ROUTINE@@"
-TIMER_VPS = ("jarvis-*", "crm1-*", "progetto-tre-*", "cc-ponte-*")
+TIMER_VPS = ("jarvis-*", "cc-ponte-*")
 PREFISSI_MAC = ("com.jarvis.",)          # sul PC non si usa: niente launchd (routine_pc.py)
 NOME = re.compile(r"[a-z0-9-]{1,40}")
 ID = re.compile(r"(vps|cron|mac):[A-Za-z0-9._-]{1,80}")
@@ -649,7 +649,7 @@ def classifica(r, conf=None):
         if (tipo == "controllo" and effetto != "lettura") or (tipo == "dati" and effetto != "scrive"):
             tipo = ""
         return esplicita.get("gruppo") or "sistema", tipo, effetto
-    # 2026-10-05: la cartella di casa («/Users/tu») non conta, se no tutto il Mac diventa «Progetto Uno»
+    # 2026-10-05: la cartella di casa («/Users/tu») non conta, se no tutto il PC diventa un solo progetto
     testo = f"{r['id']} {r.get('descrizione', '')} {r.get('comando', '')}".replace(str(Path.home()), "~")
     for regola in conf.get("regole") or []:
         try:
@@ -719,12 +719,13 @@ def elenco(forza=False, extra_gruppi=()):
             d["esecuzioni"] = esecuzioni()
             return d
         avvisi, routine = [], []
-        v = leggi_vps()
+        # senza server non si chiama nessuno; leggi_vps sostituita (routine_pc.py su Windows) dice da sola perché
+        v = leggi_vps() if (VPS or getattr(leggi_vps, "__name__", "") != "leggi_vps") else {"ok": False, "errore": ""}
         if v["ok"]:
             routine += routine_systemd(v["timers"], v["servizi"], v["elenco"])
             routine += routine_cron(v["crontab"], v["mtimes"], v["zona"])
             _CACHE["vps"] = v
-        else:
+        elif v["errore"]:
             avvisi.append(v["errore"])
         if MAC:
             _, lc = ESEGUI(["launchctl", "list"], timeout=10)
@@ -1404,7 +1405,7 @@ def _salva_gruppo(rid, gruppo, tipo):
 
 # ---------------------------------------------------------------- PC Windows (aggiunto da porta_su_windows.json, «per_file»)
 # Sul PC non c'è launchd: le routine del PC sono le attività dell'Utilità di pianificazione, e della VPS si vedono solo
-# quelle del CRM, con il server scritto in configurazione.json («routine_vps»). Tutto in routine_pc.py (solo Windows).
+# quelle condivise, con il server scritto in configurazione.json («routine_vps»). Tutto in routine_pc.py (solo Windows).
 if sys.platform == "win32":
     try:
         import routine_pc

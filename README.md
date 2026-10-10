@@ -5,8 +5,10 @@ Un assistente personale per Windows 10 e 11, costruito sopra Claude Code: un pan
 condivisa** fra Claude Code, l'assistente e gli altri programmi di intelligenza artificiale che usi.
 
 Il repository è neutro: non contiene nomi, dati o segreti di nessuno. Al primo avvio Claude Code ti chiede come vuoi
-essere chiamato, come vuoi chiamare l'assistente (di base «Jarvis»), quali progetti seguire e dove tenere la memoria.
-Da lì in poi lavora su misura per te.
+essere chiamato, come vuoi chiamare l'assistente (di base «Jarvis») e dove tenere la memoria. Si parte da zero: nessun
+progetto, spazio o agente precaricato. Quando nomini un progetto l'assistente lo crea (cartella, memoria, `Stato.md`,
+capogruppo) e il capogruppo crea gli specialisti che servono, uno alla volta: l'assistente si programma da solo sulle
+tue richieste. Guida: [docs/wiki/Progetti-e-agenti.md](docs/wiki/Progetti-e-agenti.md).
 
 Versione 0.6.0 (allineata a Jarvis per Mac 0.6.0 del 2026-10-09). Distribuzione gratuita, licenza GPL-3.0.
 
@@ -37,14 +39,14 @@ PowerShell.
 
 | Passo | Cosa fa |
 |---|---|
-| Domande di avvio | nome tuo e dell'assistente, lingua, tono, fuso, lavoro, spazi, memoria, harness, voce, cosa non toccare |
+| Domande di avvio | nome tuo e dell'assistente, lingua, tono, fuso, lavoro, da zero o primo progetto, memoria, harness, voce, cosa non toccare |
 | Prerequisiti | Python 3.12 e eSpeak NG con winget se mancano; controlla Claude Code e il browser |
 | Programma | copia il codice in `%USERPROFILE%\jarvis`, ambiente `.venv` con le librerie verificate da un import |
 | Voce | scarica i modelli di Kokoro (circa 350 MB) e ne controlla dimensione e impronta |
-| File personali | `utente.json`, `CLAUDE.md`, configurazione, spazi, agenti, memoria iniziale: solo se mancano |
-| Claude Code | skill (fra cui `aggiorna-memoria`), ganci di sicurezza e ganci dello stato dei progetti, uniti a `settings.json` con copia di sicurezza |
-| Memoria condivisa | struttura `Comune\ <spazio>\ Diario\ Report\ Sessioni\`, giunzioni dalle cartelle `memory` di Claude Code, file d'ingresso per gli altri harness |
-| Desktop e avvio | collegamenti «Jarvis Command Center», «Jarvis Orb», «Talk to Jarvis», «Aggiorna Jarvis»; attività pianificate |
+| File personali | `utente.json`, `CLAUDE.md`, configurazione, `spazi.json` vuoto, i due aiutanti di casa, memoria iniziale: solo se mancano |
+| Claude Code | skill (fra cui `aggiorna-memoria` e `nuovo-progetto`), comandi `/nuovo-progetto` e `/nuovo-agente`, ganci di sicurezza e ganci della memoria automatica, uniti a `settings.json` con copia di sicurezza |
+| Memoria condivisa | struttura `Comune\ Diario\ Report\ Sessioni\ Claude\`, giunzioni dalle cartelle `memory` di Claude Code, file d'ingresso per gli altri harness |
+| Desktop e avvio | collegamenti «Jarvis Command Center», «Jarvis Orb», «Talk to Jarvis», «Aggiorna Jarvis»; attività pianificate (avvio, battito, pulizia, giro notturno) |
 | Verifica | avvia il pannello e lancia `VERIFICA.ps1` |
 
 Si può rilanciare quando vuoi: aggiorna il codice e non tocca i tuoi file personali.
@@ -56,7 +58,8 @@ Si può rilanciare quando vuoi: aggiorna il codice e non tocca i tuoi file perso
 | [INIZIA-QUI.md](INIZIA-QUI.md) | installazione passo per passo con Claude Code |
 | [docs/INSTALLAZIONE.md](docs/INSTALLAZIONE.md) | tutte le opzioni di `INSTALLA.ps1` e il file delle risposte |
 | [docs/COME-FUNZIONA.md](docs/COME-FUNZIONA.md) | le parti del programma e come si parlano |
-| [docs/MEMORIA-CONDIVISA.md](docs/MEMORIA-CONDIVISA.md) | la memoria comune, le giunzioni, lo stato dei progetti aggiornato da solo |
+| [docs/wiki/Progetti-e-agenti.md](docs/wiki/Progetti-e-agenti.md) | come nascono, cambiano e si archiviano progetti e agenti |
+| [docs/wiki/Memoria-condivisa.md](docs/wiki/Memoria-condivisa.md) | la memoria comune, le giunzioni, stato e diario aggiornati da soli, la pulizia di `.claude` |
 | [docs/VOCE.md](docs/VOCE.md) | Whisper, Kokoro, filtro del rumore |
 | [docs/VPS-FACOLTATIVA.md](docs/VPS-FACOLTATIVA.md) | il server remoto facoltativo e il link di affiliazione |
 | [docs/AGGIORNARE.md](docs/AGGIORNARE.md) | aggiornare senza perdere niente |

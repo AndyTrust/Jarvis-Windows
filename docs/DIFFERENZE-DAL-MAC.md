@@ -23,7 +23,7 @@ diverso sta dietro `sys.platform == "win32"`. Qui cosa è passato, cosa è stato
 | `CLAUDE.md`, `.claude/commands/inizia.md`, `INIZIA-QUI.md` | prima apertura in modalità piano con le domande di avvio |
 | `INSTALLA.ps1 -DaRisposte` | installa dalle risposte approvate; scrive `installato.json` |
 | `strumenti/collega_memoria.py` (riscritto) | memoria condivisa con giunzioni, unione senza perdite, file d'ingresso per gli harness |
-| `claude-config/hooks/stato_progetti.py` | stato dei progetti aggiornato da solo (Stop, PreCompact, SessionEnd) |
+| `claude-config/hooks/stato_avanzamento.py`, `conferma_salva.py` | stessi ganci del Mac: stato e diario aggiornati da soli |
 | skill `aggiorna-memoria` neutra | percorsi da `percorsi.json`, comandi `python` e `%USERPROFILE%` |
 | `CONTROLLA-PULIZIA.py` (rinforzato) | marcatori, segreti, IP pubblici, mail, telefoni, percorsi personali |
 | attività «Jarvis Giro notturno» | al posto del lavoro launchd del Mac alle 06:40 |
@@ -52,11 +52,11 @@ diverso sta dietro `sys.platform == "win32"`. Qui cosa è passato, cosa è stato
 | strumenti di posta dell'autore, strumenti dei suoi siti e dei suoi database | dati personali e infrastruttura privata |
 | `vps/`, `docker/`, backup del server | infrastruttura privata |
 | memoria, vault, riunioni, sessioni, registri delle attività | dati personali |
-| `strumenti/condiviso_crm.py` (era nel repository del 2026-10-05) | strumento del CRM di un'azienda precisa: tolto dalla distribuzione |
+| uno strumento del gestionale dell'autore (era nel repository del 2026-10-05) | dati di un'azienda precisa: tolto dalla distribuzione |
 
 ## Neutralizzazione del 2026-10-10
 
 Il repository del 2026-10-05 conteneva ancora nomi di cartelle, servizi e risorse dell'autore che il controllo di allora
 non cercava (nomi di risorse, cartelle locali, l'indirizzo del server per l'assistenza). Sono stati sostituiti con
-nomi generici (`Progetto Uno`, `db-crm`, `.jarvis-locale`…) in modo coerente in tutto il codice. L'assistenza a
+nomi generici (`<nome-progetto>`, `database`, `.jarvis-locale`…) in modo coerente in tutto il codice. L'assistenza a
 distanza ora parte vuota: chi offre assistenza compila `assistenza-tunnel.json` e `assistenza-chiave-pubblica.txt`.

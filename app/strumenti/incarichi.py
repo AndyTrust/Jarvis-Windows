@@ -461,40 +461,40 @@ def prova():
     try:
         v("in prova non è in modo remoto", not remoto())
         # validazione
-        solleva("testo vuoto", IncaricoNonValido, nuovo, "jarvis-titolare", "ceo-ai", "   ")
-        solleva("testo oltre 4000", IncaricoNonValido, nuovo, "jarvis-titolare", "ceo-ai", "x" * 4001)
-        solleva("nome con maiuscole", IncaricoNonValido, nuovo, "Jarvis", "ceo-ai", "ciao")
-        solleva("nome con spazio", IncaricoNonValido, nuovo, "jarvis-titolare", "ceo ai", "ciao")
+        solleva("testo vuoto", IncaricoNonValido, nuovo, "assistente", "capo-prova", "   ")
+        solleva("testo oltre 4000", IncaricoNonValido, nuovo, "assistente", "capo-prova", "x" * 4001)
+        solleva("nome con maiuscole", IncaricoNonValido, nuovo, "Jarvis", "capo-prova", "ciao")
+        solleva("nome con spazio", IncaricoNonValido, nuovo, "assistente", "capo prova", "ciao")
         solleva("nome con ../", IncaricoNonValido, battito, "../etc", "vps")
-        solleva("nome oltre 40", IncaricoNonValido, nuovo, "a" * 41, "ceo-ai", "ciao")
-        solleva("tipo sbagliato", IncaricoNonValido, nuovo, "jarvis-titolare", "ceo-ai", "ciao", tipo="ordine")
-        solleva("ore a zero", IncaricoNonValido, nuovo, "jarvis-titolare", "ceo-ai", "ciao", ore=0)
+        solleva("nome oltre 40", IncaricoNonValido, nuovo, "a" * 41, "capo-prova", "ciao")
+        solleva("tipo sbagliato", IncaricoNonValido, nuovo, "assistente", "capo-prova", "ciao", tipo="ordine")
+        solleva("ore a zero", IncaricoNonValido, nuovo, "assistente", "capo-prova", "ciao", ore=0)
         solleva("stato sbagliato in elenco", IncaricoNonValido, elenco, stato="boh")
         solleva("id sbagliato", NonTrovato, leggi, "../../etc/passwd")
         solleva("id inesistente", NonTrovato, leggi, "in_00000000")
         # ciclo nuovo -> preso -> fatto
-        i = nuovo("jarvis-titolare", "ceo-ai", "Quanto abbiamo incassato ieri? È una prova «àèì»", tipo="domanda")
+        i = nuovo("assistente", "capo-prova", "Quanto abbiamo incassato ieri? È una prova «àèì»", tipo="domanda")
         v("id in_ + 8 esadecimali", ID_RE.fullmatch(i["id"]) is not None)
         v("nuovo: stato nuovo e scade a +24h", i["stato"] == "nuovo" and i["scade"] - i["creato"] == 86400)
         v("campi del contratto", set(i) >= {"id", "da", "a", "tipo", "testo", "creato", "scade", "stato",
                                              "preso_da", "preso_il", "risposta"})
         v("UTF-8 senza escape nel file", "«àèì»" in (base / "dati" / "incarichi" / f"{i['id']}.json").read_text("utf-8"))
-        v("elenco per destinatario e stato", [d["id"] for d in elenco(stato="nuovo", a="ceo-ai")] == [i["id"]])
-        p = prendi(i["id"], "ceo-ai")
-        v("preso da ceo-ai", p["stato"] == "preso" and p["preso_da"] == "ceo-ai" and p["preso_il"])
+        v("elenco per destinatario e stato", [d["id"] for d in elenco(stato="nuovo", a="capo-prova")] == [i["id"]])
+        p = prendi(i["id"], "capo-prova")
+        v("preso da capo-prova", p["stato"] == "preso" and p["preso_da"] == "capo-prova" and p["preso_il"])
         solleva("non si prende due volte", GiaPreso, prendi, i["id"], "commercialista")
         solleva("risposta da chi non ha preso rifiutata", IncaricoNonValido, rispondi, i["id"], "commercialista", "io")
-        r = rispondi(i["id"], "ceo-ai", "Ieri 1.234 euro (prova)", token_stimati=1200)
+        r = rispondi(i["id"], "capo-prova", "Ieri 1.234 euro (prova)", token_stimati=1200)
         v("fatto con risposta", r["stato"] == "fatto" and r["risposta"]["esito"] == "ok"
-          and r["risposta"]["token_stimati"] == 1200 and r["risposta"]["da"] == "ceo-ai")
-        solleva("non si risponde due volte", IncaricoNonValido, rispondi, i["id"], "ceo-ai", "ancora")
-        solleva("un fatto non si annulla", IncaricoNonValido, annulla, i["id"], "jarvis-titolare")
-        f2 = rispondi(prendi(nuovo("jarvis-titolare", "cambusa", "lavoro", tipo="lavoro")["id"], "cambusa")["id"],
-                      "cambusa", "", esito="fallito")
+          and r["risposta"]["token_stimati"] == 1200 and r["risposta"]["da"] == "capo-prova")
+        solleva("non si risponde due volte", IncaricoNonValido, rispondi, i["id"], "capo-prova", "ancora")
+        solleva("un fatto non si annulla", IncaricoNonValido, annulla, i["id"], "assistente")
+        f2 = rispondi(prendi(nuovo("assistente", "specialista-prova", "lavoro", tipo="lavoro")["id"], "specialista-prova")["id"],
+                      "specialista-prova", "", esito="fallito")
         v("esito fallito -> stato fallito", f2["stato"] == "fallito")
-        a = nuovo("jarvis-titolare", "legale-societario", "da annullare", tipo="messaggio")
+        a = nuovo("assistente", "legale-societario", "da annullare", tipo="messaggio")
         solleva("annulla da un estraneo rifiutato", IncaricoNonValido, annulla, a["id"], "commerciale")
-        v("annulla dal mittente", annulla(a["id"], "jarvis-titolare")["stato"] == "annullato")
+        v("annulla dal mittente", annulla(a["id"], "assistente")["stato"] == "annullato")
         # un incarico non si sovrascrive mai
         fisso = base / "dati" / "incarichi" / "in_abcdef01.json"
         try:
@@ -506,7 +506,7 @@ def prova():
         fisso.unlink()
         # un solo vincitore: thread
         for giro in range(5):
-            c = nuovo("jarvis-titolare", "ceo-ai", f"gara {giro}")
+            c = nuovo("assistente", "capo-prova", f"gara {giro}")
             vinti, persi = [], []
             barriera = threading.Barrier(8)
 
@@ -530,7 +530,7 @@ def prova():
         import multiprocessing as mp
         ctx = mp.get_context("spawn")
         for giro in range(3):
-            c = nuovo("jarvis-titolare", "ceo-ai", f"gara processi {giro}")
+            c = nuovo("assistente", "capo-prova", f"gara processi {giro}")
             via = time.time() + 1.5
             with ctx.Pool(6) as pool:
                 esiti = pool.starmap(_prova_concorrenti_processo,
@@ -543,9 +543,9 @@ def prova():
         else:
             v("un solo vincitore con 6 processi insieme (3 giri)", True)
         # scadenza
-        s1 = nuovo("jarvis-titolare", "cruscotto-bi", "scadrà")
-        s2 = prendi(nuovo("jarvis-titolare", "cruscotto-bi", "scadrà presa")["id"], "cruscotto-bi")
-        s3 = nuovo("jarvis-titolare", "cruscotto-bi", "non scade")
+        s1 = nuovo("assistente", "cruscotto-bi", "scadrà")
+        s2 = prendi(nuovo("assistente", "cruscotto-bi", "scadrà presa")["id"], "cruscotto-bi")
+        s3 = nuovo("assistente", "cruscotto-bi", "non scade")
         for s in (s1, s2):
             d = leggi(s["id"])
             d["scade"] = int(time.time()) - 10
@@ -556,21 +556,21 @@ def prova():
         v("scadi idempotente", scadi() == [])
         solleva("uno scaduto non si prende", GiaPreso, prendi, s1["id"], "cruscotto-bi")
         # battiti
-        battito("ceo-ai", "vps", "giro delle 10")
+        battito("capo-prova", "vps", "giro delle 10")
         battito("commercialista", "vps")
         d = json.loads((base / "dati" / "battiti" / "commercialista.json").read_text())
         d["il"] = int(time.time()) - 301
         _scrivi(base / "dati" / "battiti" / "commercialista.json", d)
         st = stato_pubblico()
         b = {x["agente"]: x for x in st["battiti"]}
-        v("battito recente: vivo", b["ceo-ai"]["vivo"] is True and b["ceo-ai"]["nota"] == "giro delle 10")
+        v("battito recente: vivo", b["capo-prova"]["vivo"] is True and b["capo-prova"]["nota"] == "giro delle 10")
         v("battito di 301 s fa: non vivo", b["commercialista"]["vivo"] is False)
         v("stato_pubblico: chiavi e contatori", set(st) == {"incarichi", "battiti", "contatori"}
           and st["contatori"]["fatto"] == 1 and st["contatori"]["scaduto"] == 2
           and st["contatori"]["totale"] == len(_tutti()) and st["contatori"]["agenti_vivi"] == 1
           and len(st["incarichi"]) <= 50)
         for n in range(55):
-            nuovo("jarvis-titolare", "garante-dati", f"riempio {n}")
+            nuovo("assistente", "garante-dati", f"riempio {n}")
         st = stato_pubblico()
         v("stato_pubblico: al massimo 50, i più recenti", len(st["incarichi"]) == 50
           and st["incarichi"][0]["creato"] >= st["incarichi"][-1]["creato"])
@@ -582,12 +582,12 @@ def prova():
         v(f"file 0600 ({len(file_)})", all((f.stat().st_mode & 0o777) == 0o600 for f in file_))
         v("nessun temporaneo rimasto", not list(dati.rglob("*.tmp")))
         # modo remoto: solo il comando, senza ssh vero
-        cmd = comando_ssh(["nuovo", "--da", "jarvis-titolare", "--a", "ceo-ai", "--testo", "ciao 'mondo'; rm -rf /",
+        cmd = comando_ssh(["nuovo", "--da", "assistente", "--a", "capo-prova", "--testo", "ciao 'mondo'; rm -rf /",
                            "--ore", 24])
         v("comando ssh: prefisso del contratto", cmd[:6] == ["ssh", "-o", "ConnectTimeout=8", "server-tuo",
                                                              "python3", "@@CARTELLA_SERVER@@/jarvis/strumenti/incarichi.py"])
         v("comando ssh: argomenti quotati per la shell remota", shlex.split(" ".join(cmd[4:]))[2:] ==
-          ["nuovo", "--da", "jarvis-titolare", "--a", "ceo-ai", "--testo", "ciao 'mondo'; rm -rf /", "--ore", "24"])
+          ["nuovo", "--da", "assistente", "--a", "capo-prova", "--testo", "ciao 'mondo'; rm -rf /", "--ore", "24"])
         os.environ["INCARICHI_DIR"] = ""
         v("sul Mac senza INCARICHI_DIR è remoto" if sys.platform == "darwin" else "fuori dal Mac è locale",
           remoto() == (sys.platform == "darwin"))
@@ -604,8 +604,8 @@ def prova():
         _esegui_remoto = finto
         try:
             if sys.platform == "darwin":
-                rispondi("in_12345678", "ceo-ai", "fatto", token_stimati=5)
-                v("libreria remota: argomenti di rispondi", visti[-1] == ["rispondi", "in_12345678", "--da", "ceo-ai",
+                rispondi("in_12345678", "capo-prova", "fatto", token_stimati=5)
+                v("libreria remota: argomenti di rispondi", visti[-1] == ["rispondi", "in_12345678", "--da", "capo-prova",
                   "--testo", "fatto", "--esito", "ok", "--token-stimati", 5])
                 solleva("libreria remota: l'errore torna con la sua classe", GiaPreso, prendi, "in_12345678", "x")
         finally:
@@ -618,18 +618,18 @@ def prova():
         def cli(*a):
             r = subprocess.run(me + list(a), capture_output=True, text=True, env=env)
             return r.returncode, r.stdout
-        c, out = cli("nuovo", "--da", "jarvis-titolare", "--a", "ceo-ai", "--testo", "da riga di comando «ok»")
+        c, out = cli("nuovo", "--da", "assistente", "--a", "capo-prova", "--testo", "da riga di comando «ok»")
         idc = json.loads(out)["id"] if c == 0 else None
         v("cli nuovo: 0 e JSON con «» non escapati", c == 0 and "«ok»" in out)
-        v("cli testo vuoto: 1", cli("nuovo", "--da", "jarvis-titolare", "--a", "ceo-ai", "--testo", "")[0] == 1)
+        v("cli testo vuoto: 1", cli("nuovo", "--da", "assistente", "--a", "capo-prova", "--testo", "")[0] == 1)
         v("cli non trovato: 1", cli("leggi", "in_ffffffff")[0] == 1)
         v("cli uso sbagliato: 2", cli("nuovo", "--da", "x")[0] == 2 and cli("boh")[0] == 2)
-        v("cli prendi + rispondi", cli("prendi", idc, "--da", "ceo-ai")[0] == 0
-          and cli("rispondi", idc, "--da", "ceo-ai", "--testo", "ok", "--token-stimati", "3")[0] == 0)
-        v("cli prendi di nuovo: 1", cli("prendi", idc, "--da", "ceo-ai")[0] == 1)
+        v("cli prendi + rispondi", cli("prendi", idc, "--da", "capo-prova")[0] == 0
+          and cli("rispondi", idc, "--da", "capo-prova", "--testo", "ok", "--token-stimati", "3")[0] == 0)
+        v("cli prendi di nuovo: 1", cli("prendi", idc, "--da", "capo-prova")[0] == 1)
         c, out = cli("stato")
         v("cli stato: JSON", c == 0 and "contatori" in json.loads(out))
-        v("cli battito", cli("battito", "ceo-ai", "--macchina", "vps", "--nota", "x")[0] == 0)
+        v("cli battito", cli("battito", "capo-prova", "--macchina", "vps", "--nota", "x")[0] == 0)
     finally:
         if prima is None:
             os.environ.pop("INCARICHI_DIR", None)

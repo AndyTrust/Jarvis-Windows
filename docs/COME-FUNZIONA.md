@@ -9,7 +9,7 @@
             │                                         │
             └──────────►  memoria condivisa  ◄────────┘
                           Comune\  <spazio>\Stato.md  Diario\  Report\  Sessioni\
-                          Claude-Code\progetti\*\memory  (giunzioni)
+                          Claude\projects\*\memory  (giunzioni)
                                    ▲
                      Codex, Gemini CLI, Cursor (AGENTS.md, GEMINI.md)
 ```
@@ -28,7 +28,7 @@
 | Quaderno degli agenti | `strumenti\quaderno.py`, `giro_apprendimento.py` | ogni agente annota quello che impara |
 | Riunioni | `strumenti\riunione.py`, skill `riunione-agenti` | il punto giornaliero di un gruppo di agenti |
 | Report | `strumenti\report_pdf.py` | trasforma un resoconto in PDF |
-| Memoria condivisa | `strumenti\collega_memoria.py`, gancio `stato_progetti.py` | vedi `MEMORIA-CONDIVISA.md` |
+| Memoria condivisa | `strumenti\collega_memoria.py`, ganci `stato_avanzamento.py` e `conferma_salva.py` | vedi `wiki\Memoria-condivisa.md` |
 
 ## I ganci di Claude Code
 
@@ -38,7 +38,8 @@
 | UserPromptSubmit, Stop, SubagentStop, Pre/PostToolUse | `jarvis\.claude\hooks\jarvis_status.py` | alimenta la lavagna |
 | PreToolUse (Bash, PowerShell) | `hooks\guardia_comandi.py` | blocca i comandi irreversibili prima che partano |
 | PreToolUse (Bash, PowerShell, MCP) | `hooks\connessioni_guardia.py` | controlla le connessioni verso l'esterno |
-| Stop, PreCompact, SessionEnd | `hooks\stato_progetti.py` | aggiorna `<spazio>\Stato.md`, il diario, i collegamenti |
+| Stop, PreCompact, SessionEnd | `hooks\stato_avanzamento.py` | aggiorna `<spazio>\Stato.md`, il diario del giorno, i collegamenti |
+| UserPromptSubmit | `hooks\conferma_salva.py` | alle conferme chiede il salvataggio di `aggiorna-memoria` |
 
 L'installatore li aggiunge a `%USERPROFILE%\.claude\settings.json` riconoscendoli dal nome dello script: i ganci che
 avevi già restano, e rilanciando non si raddoppiano. Prima di scrivere fa una copia `settings.json.bak-jarvis-<data>`.

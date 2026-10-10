@@ -68,8 +68,8 @@ Al primo avvio Claude Code ti chiede di accedere con il browser. Poi scrivi:
 ```
 
 Claude legge `CLAUDE.md` del repository, vede che Jarvis non è installato e ti fa le **domande di avvio**, una alla
-volta: come vuoi essere chiamato e come vuoi chiamare l'assistente, lingua e tono, fuso orario, lavoro e progetti da
-seguire, dove tenere la memoria condivisa, quali altri programmi di intelligenza artificiale usi, voce, telefono,
+volta: come vuoi essere chiamato e come vuoi chiamare l'assistente, lingua e tono, fuso orario, che lavoro fai e se vuoi
+partire da zero o creare subito il primo progetto, dove tenere la memoria condivisa, quali altri programmi di intelligenza artificiale usi, voce, telefono,
 server remoto, posta, cosa non deve toccare mai. Ogni domanda ha un valore predefinito: se non sai, rispondi «invio».
 
 **Non scrivere password o chiavi nelle risposte.** Vanno dopo in `%USERPROFILE%\.env.jarvis`.
@@ -96,8 +96,18 @@ powershell -ExecutionPolicy Bypass -File .\VERIFICA.ps1
 Sul Desktop trovi «Jarvis Command Center», «Jarvis Orb», «Talk to Jarvis» e «Aggiorna Jarvis». Apri una **nuova**
 sessione di Claude Code: i ganci partono da lì.
 
+## Passo 7. Il primo progetto
+
+Si parte da zero: nessun progetto, spazio o agente precaricato. Il Command Center mostra «Nessun progetto ancora».
+Quando ti serve, dillo all'assistente («apri il progetto Negozio», «mi serve qualcuno che segua le fatture») oppure
+scrivi in Claude Code `/nuovo-progetto <nome>` e `/nuovo-agente <progetto> <ruolo>`. Nasce il progetto con la sua
+cartella (`File\` per i tuoi file), la memoria, lo `Stato.md` e il capogruppo `<id>-ceo`, che poi crea gli specialisti
+uno alla volta. Lo stesso si fa dalla pagina «Progetti» del Command Center. Guida: `docs\wiki\Progetti-e-agenti.md`.
+
 ## Dove andare dopo
 
 - `docs\COME-FUNZIONA.md`: le parti del programma e come si parlano.
-- `docs\MEMORIA-CONDIVISA.md`: la memoria comune a Claude Code, Jarvis e agli altri programmi.
+- `docs\wiki\Progetti-e-agenti.md`: come nascono, cambiano e si archiviano progetti e agenti.
+- `docs\wiki\Memoria-condivisa.md`: la memoria comune a Claude Code, all'assistente e agli altri programmi, e come si
+  aggiorna da sola.
 - `docs\VOCE.md`, `docs\VPS-FACOLTATIVA.md`, `docs\AGGIORNARE.md`, `docs\DISINSTALLARE.md`, `docs\PROBLEMI-WINDOWS.md`.

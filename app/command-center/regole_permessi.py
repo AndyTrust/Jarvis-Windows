@@ -230,10 +230,9 @@ NOMI_SEGRETI = re.compile(
     r"shadow|sudoers.*)$", re.I)
 # le cartelle SICURE: lettura automatica (fuori dai segreti sopra)
 SICURE = [
-    "~/Jarvis/**", "~/.jarvis-locale/Jarvis/**", "~/prodotto-uno/**", "~/my-agent/**",
-    "~/OneDrive/Jarvis Brain/Progetti/**",
-    "~/OneDrive/Jarvis Brain/Memoria/**",
-    "~/OneDrive/Progetto CRM/**",
+    "~/Jarvis/**", "~/jarvis/**", "~/.jarvis-locale/Jarvis/**",
+    "~/Progetti/**",               # la cartella predefinita dei progetti (crea_progetto.py)
+    "~/Jarvis-Memoria/**",         # la memoria condivisa predefinita (collega_memoria.py)
     "~/.ai-memory/**", "~/.claude/CLAUDE.md", "~/.claude/agents/**", "~/.claude/skills/**", "~/.claude/hooks/**",
     "~/.claude/commands/**", "~/CLAUDE.md",
     "/tmp/**", "/private/tmp/**", "/private/var/folders/*/*/T/**", "/var/folders/*/*/T/**",
@@ -480,8 +479,8 @@ def classe_parola(t, cwd):
         pezzi.add(t.split("=", 1)[1])
     if ":" in t and not t.startswith(("http:", "https:")):
         pezzi.add(t.split(":", 1)[1])                    # git show HEAD:percorso, scp host:percorso
-    # un percorso semplice con gli spazi («…/Jarvis Brain/Progetti/Progetto Uno/x») è UN percorso: i frammenti tagliati sugli spazi
-    # («/Progetti/140») non esistono e finivano «privati», cioè rischio alto per ogni comando sul vault (2026-10-04)
+    # un percorso semplice con gli spazi («…/Progetti/Nome progetto/x») è UN percorso: i frammenti tagliati sugli spazi
+    # («/Progetti/Nome») non esistono e finivano «privati», cioè rischio alto per ogni comando sul vault (2026-10-04)
     intero = t.strip("'\"")
     if not (" " in intero and re.fullmatch(r"[~/][^;|&<>`$(){}*?\[\]\n]*", intero)):
         pezzi |= set(_SOTTO_PERCORSI.findall(t))

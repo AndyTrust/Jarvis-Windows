@@ -6,7 +6,7 @@ che le macchine fanno davvero.
 Perché esiste (l'utente, 20/09/2026 12:55): «un orchestratore che si accerta quante
 chiavi sono in giro e cosa stanno usando». Le chiavi le dà e le riprende
 `lavori.py`. Questo è il controllo che le due metà non si separino, e nasce da
-un fatto: il 20/09 un tunnel verso l'Odoo di produzione è rimasto aperto sette
+un fatto: un tunnel verso il database di produzione è rimasto aperto sette
 ore, la sessione batteva regolarmente, e nessuno se n'è accorto.
 
 Non è un agente e non è un modello. È uno script: dare, contare e ritirare
@@ -115,22 +115,19 @@ def sessioni_claude():
 # Sono tutti comandi di lettura.
 #
 # 🔴 La prima versione cercava `[s]sh.*server-tuo.*5432`, cioè un tunnel che
-# non esiste: `odoo_sql.sh` e `odoo_shell.sh` vanno diritti a `root@203.0.113.10`
+# non esiste: gli script del database vanno diritti a `root@203.0.113.10`
 # senza alias e senza porta. La spia non trovava mai niente e il portiere diceva
 # che andava tutto bene mentre qualcuno scriveva in produzione senza chiave.
 # Perciò si cerca l'indirizzo O l'alias, e il nome del contenitore del database.
 VPS = r'(server-tuo|203\.0\.113\.10)'
 SPIE = {
-    'db-crm': "ps -eo args | grep -cE '[s]sh.*%s.*(db1|5432)'" % VPS,
-    'db-due': "ps -eo args | grep -cE '[s]sh.*%s.*(due-odoo|5433)'" % VPS,
+    'database': "ps -eo args | grep -cE '[s]sh.*%s.*(5432)'" % VPS,
     # solo le shell interattive (la riga finisce col nome dell'host): i tunnel (-N/-L/-R/-D) e le ssh
     # con un comando dopo l'host (il ponte del telefono) non sono una shell che modifica (26/09/2026)
     'vps-shell': "ps -eo args | grep -E '[s]sh( |.* )%s$' | grep -vcE ' -(N|L|R|D)( |$)'" % VPS,
     'chrome-debug': "lsof -nP -iTCP:9222 -sTCP:LISTEN 2>/dev/null | grep -c LISTEN",
     'ponte-9223': "lsof -nP -iTCP:9223 -sTCP:LISTEN 2>/dev/null | grep -c LISTEN",
     'telefono-adb': "adb devices 2>/dev/null | grep -c 'device$'",
-    'mt4-terminale': "ps -eo args | grep -c '[t]erminal.exe'",
-    'portali-crm': "ps -eo args | grep -c '[c]rm140_browser'",
 }
 
 # Sulla VPS le stesse risorse si guardano da un'altra parte: lì il database non
@@ -138,13 +135,12 @@ SPIE = {
 # non troverebbero mai niente, e un portiere che non trova mai niente dice
 # sempre che va tutto bene — l'errore già fatto una volta oggi.
 SPIE_VPS = {
-    'db-crm': "ps -eo args | grep -c '[d]ocker exec.*crm-odoo-db psql'",
-    'db-due': "ps -eo args | grep -c '[d]ocker exec.*due-odoo-db psql'",
+    'database': "ps -eo args | grep -c '[d]ocker exec.*psql'",
     'vps-shell': "who 2>/dev/null | grep pts | grep -vc tmux",   # le finestre tmux persistenti non contano (26/09/2026)
 }
 
 # I contenitori accesi NON sono spie: girano sempre, e segnarli abusivi a ogni
-# giro sarebbe rumore. La chiave su `waha` o `n8n-due` serve per *modificarli*,
+# giro sarebbe rumore. La chiave su un contenitore serve per *modificarli*,
 # non per il fatto che stanno in piedi.
 
 # Le risorse che NON hanno una spia: qui il portiere si fida di quello che è
@@ -155,9 +151,7 @@ SPIE_VPS = {
 # per una prova che lo scalza continua a ritirare la chiave `telefono-adb`.
 NORMALI = ('telefono-adb',)
 
-SENZA_SPIA = ('n8n-jarvis', 'n8n-due', 'waha', 'sito-tre', 'wordpress-due',
-              'wordpress-sito', 'gtm-due', 'gtm-sito', 'mac-schermo',
-              'vault-onedrive')
+SENZA_SPIA = ('sito', 'automazioni', 'mac-schermo', 'cartella-sincronizzata')
 
 
 def sulla_vps():
@@ -167,7 +161,7 @@ def sulla_vps():
 
 
 # Su Windows non ci sono VPS, tunnel ssh, ADB né MetaTrader: restano le due porte del Chrome di
-# debug e i portali del CRM. Sono funzioni Python (senza `ps`, `grep`, `lsof`, che qui non ci sono).
+# debug. Sono funzioni Python (senza `ps`, `grep`, `lsof`, che qui non ci sono).
 def _conta_processi(pezzo):
     return sum(1 for p in processi.elenco() if pezzo in p['cmd'])
 
@@ -175,7 +169,6 @@ def _conta_processi(pezzo):
 SPIE_WIN = {
     'chrome-debug': lambda: int(processi.porta_aperta(9222)),
     'ponte-9223': lambda: int(processi.porta_aperta(9223)),
-    'portali-crm': lambda: _conta_processi('crm_browser'),
 }
 
 

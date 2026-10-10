@@ -1,36 +1,26 @@
 #!/usr/bin/env python3
 """Sincronia fra progetti e memoria: una riga per progetto.
 
-Dal 23/09/2026 la memoria sta in un posto solo, «Jarvis Brain/Memoria/» su
-OneDrive: una sezione per progetto, con «Errori da non ripetere/», «Decisioni/»,
-«Fatti/» e «Da fare.md». Le vecchie `<progetto>/.claude/memoria/MEMORIA.md` e le
-pagine «A che punto siamo» non si guardano più.
-
-L'elenco dei progetti e la loro sezione di memoria vengono da
-command-center/spazi.json (l'unica fonte: la usano anche il Command Center e
-le missioni). Per ogni progetto:
-  memoria   data e ora dell'ultima nota modificata nella sua sezione di Memoria/
-  da fare   caselle aperte (`- [ ]`) nel suo «Da fare.md»
+La memoria sta in un posto solo, la memoria condivisa (chiave «memoria» di ~/.jarvis/percorsi.json, di base
+~/Jarvis-Memoria): una cartella per spazio con Stato.md, Decisioni.md e le note. L'elenco dei progetti viene da
+command-center/spazi.json (la fonte unica, scritta da strumenti/crea_progetto.py). Per ogni progetto:
+  memoria   data e ora dell'ultima nota modificata nella sua sezione (e nella sua .claude/memoria)
+  da fare   caselle aperte (`- [ ]`) in «Da fare.md» o in «Stato.md» della sezione
   errori    note in «Errori da non ripetere/»
   lavoro    l'ultimo file toccato nella cartella del progetto
-  agenti    quanti profili in .claude/agents/ e se c'è un caposquadra (ceo-*.md)
-Per il Progetto CRM conta anche domande e decisioni aperte nel registro di direzione.
+  agenti    quanti profili in .claude/agents/ e chi è il capogruppo (quello di spazi.json, di solito <id>-ceo)
+Senza progetti stampa una riga e esce 0.
 
 Semaforo: 🔴 memoria o cartella mancante · 🟡 c'è lavoro più recente
 dell'ultima nota di memoria (oltre TOLLERANZA_MIN minuti) · 🟢 in ordine.
 
 Solo lettura, tranne con --scrivi: allora scrive la pagina di controllo
-«Memoria/00 Comune/Report/Stato aggiornamenti.md» (unita con Posta-Report il 02/10/2026),
-con data E ORA dell'ultima nota di
-memoria e dell'ultimo lavoro di ogni progetto. Non scrive in nessuna memoria.
+<memoria>/Report/Stato aggiornamenti.md. Non scrive in nessuna memoria.
 
 Uso:
-  python3 sincro/controlla.py                          tabella leggibile
-  python3 sincro/controlla.py --json                   per il Command Center, ogni30.py e il vice capogruppo
-  python3 sincro/controlla.py --scrivi                 scrive la pagina di controllo
-                                                       (parte da sola a fine di ogni risposta)
-  python3 sincro/controlla.py --registro AAAA-MM-GG    registro di direzione di Progetto Uno:
-      decisioni e domande aperte già scadute o in scadenza entro quella data
+  python sincro/controlla.py              tabella leggibile
+  python sincro/controlla.py --json       per il Command Center e ogni30.py
+  python sincro/controlla.py --scrivi     scrive la pagina di controllo
 Esce 1 se almeno un progetto è 🔴 (cartella o memoria mancante).
 """
 import sys as _s, pathlib as _p; _s.path.insert(0, str(_p.Path(__file__).resolve().parents[1] / "command-center")); import senza_finestre  # noqa: E402,F401  (Windows: niente finestre di terminale)
@@ -39,7 +29,6 @@ import json
 import os
 import pathlib
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -52,37 +41,26 @@ SPAZI = AGENTE / "command-center/spazi.json"
 # 2026-09-26: nel template spazi.json non c'è; si legge l'esempio, come fa command-center/spazi.py
 if not SPAZI.exists():
     SPAZI = AGENTE / "command-center/spazi.esempio.json"
-def _memoria_utente():
-    """La memoria di chi usa questo PC: `memoria_dir` di utente.json (mai quella del capo)."""
+def _memoria_condivisa():
+    """La memoria condivisa scelta all'installazione (~/.jarvis/percorsi.json); altrimenti quella dell'utente di utente.json."""
+    try:
+        v = json.loads((HOME / ".jarvis" / "percorsi.json").read_text(encoding="utf-8-sig")).get("memoria")
+        if v:
+            return Path(os.path.expandvars(os.path.expanduser(v)))
+    except (OSError, ValueError):
+        pass
     try:
         u = json.loads((AGENTE / "utente.json").read_text(encoding="utf-8"))
         return AGENTE / u["memoria_dir"]
     except (OSError, ValueError, KeyError):
-        return AGENTE / ".claude/memoria"
+        return HOME / "Jarvis-Memoria"
 
 
-MEMORIA = _memoria_utente() if sys.platform == "win32" else ONEDRIVE / "Jarvis Brain/Memoria"   # su Windows Jarvis Brain è del capo
-REGISTRO_DIREZIONE = ONEDRIVE / "Progetto CRM/Reports/Direzione/registro.json"
-# dove ogni caposquadra di progetto scrive i suoi report (dentro la cartella del
-# progetto). I nomi `ceo-*` restano quelli di prima: dal 19/09/2026 il capogruppo principale è
-# Jarvis, che parla con l'utente, e questi profili sono capisquadra sotto il vice capogruppo.
-REPORT_CEO = {"ceo-ai": "Reports/Direzione/capogruppo",
-              "capogruppo-due": "DUE-DUE/Rapporti/direzione"}
-VAULT_CRM = ONEDRIVE / "Progetto CRM/Vault CRM/CRM"
-if sys.platform != "win32":
-    PAGINA_CONTROLLO = ONEDRIVE / "Jarvis Brain/Memoria/00 Comune/Report/Stato aggiornamenti.md"
-elif VAULT_CRM.is_dir():        # CRM condiviso presente: la pagina sta nel vault
-    PAGINA_CONTROLLO = VAULT_CRM / "99 Meta/Stato aggiornamenti.md"
-else:                           # installazione senza CRM: pagina locale accanto al battito
-    PAGINA_CONTROLLO = AGENTE / "sincro/Stato aggiornamenti.md"
+MEMORIA = _memoria_condivisa()
+PAGINA_CONTROLLO = MEMORIA / "Report" / "Stato aggiornamenti.md"
 # Cartelle che non sono lavoro: rumore, uscite di programmi, copie del vault.
 RUMORE = {".git", "node_modules", ".obsidian", "_to_delete", ".venv", "venv", "__pycache__",
-          "worktrees", ".codegraph", "graphify-out", "memoria", "PROGETTO UNO OBSIDIAN",
-          "lavori", "missioni", "chiamate", "asterisk", "state", "registri",
-          # file che cambiano da soli, a orologio o perché un programma è aperto: non sono lavoro
-          "ServizioLive",             # log del servizio in sala, launchd com.Progetto Uno.servizio-live, ogni minuto
-          "archivio-notte",           # archivio della posta Progetto Due, launchd com.progetto-due.archivio-notte, alle 03:15
-          "chrome-profile-password"}  # profilo di Chrome del gestore di password: cambia finché Chrome è aperto
+          "worktrees", ".codegraph", "graphify-out", "memoria", "lavori", "missioni", "state", "registri"}
 # copie degli strumenti della memoria che la skill mette in ogni progetto: non sono lavoro
 STRUMENTI_BRAIN = {"mappa.py", "stato_obsidian.py", "salva_brain.py", "handoff.py", "brain.py",
                    "impianta.py", "costo.py", "stato.py", "pdf_testo.py", "scompatta_sorgenti.py",
@@ -108,9 +86,8 @@ def leggi_spazi():
     for s in dati.get("spazi", []):
         for p in s.get("progetti", []):
             sezioni = [MEMORIA / m for m in p.get("sezioni_memoria", [])]
-            # «memoria_propria»: cartelle di memoria fuori da Jarvis Brain. Serve al Progetto CRM,
-            # che per decisione ha il suo vault e salva nella memoria del progetto (27/09/2026).
-            propria = [percorso(m) for m in p.get("memoria_propria", [])]
+            # «memoria_propria»: cartelle di memoria fuori dalla memoria condivisa; di base .claude/memoria del progetto
+            propria = [percorso(m) for m in p.get("memoria_propria", [])] or [percorso(p["cartella"]) / ".claude" / "memoria"]
             progetti.append((s.get("nome", ""), p["id"], p["nome"],
                              percorso(p["cartella"]), sezioni, p.get("capogruppo"), propria))
     return progetti
@@ -157,16 +134,6 @@ def modelli_skill(profilo_ceo):
     return dict(re.findall(r"`\.claude/skills/([\w-]+)`.*\|\s*(haiku|sonnet|opus)\s*\|", testo))
 
 
-def registro_scadenze():
-    try:
-        r = json.loads(REGISTRO_DIREZIONE.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return None
-    domande = sum(1 for d in r.get("domande", []) if d.get("stato") == "aperta")
-    decisioni = sum(1 for d in r.get("decisioni", [])
-                    if d.get("stato") in ("proposta", "in_corso"))
-    return {"domande_aperte": domande, "decisioni_aperte": decisioni}
-
 def stato_memoria(sezioni):
     """Quello che dice la memoria di un progetto, sommando le sue sezioni:
     ultima nota modificata (ora e file), caselle aperte nei «Da fare.md»,
@@ -192,11 +159,11 @@ def stato_memoria(sezioni):
                 if ultima is None or t > ultima:
                     ultima, dove = t, os.path.relpath(f, MEMORIA)
         errori += sum(1 for _ in (sez / "Errori da non ripetere").rglob("*.md"))
-        da_fare = sez / "Da fare.md"
-        try:
-            aperte += len(CASELLA_APERTA.findall(da_fare.read_text(encoding="utf-8")))
-        except OSError:
-            manca.append(f"manca {da_fare.relative_to(MEMORIA)}")
+        for nome_f in ("Da fare.md", "Stato.md"):
+            try:
+                aperte += len(CASELLA_APERTA.findall((sez / nome_f).read_text(encoding="utf-8")))
+            except OSError:
+                pass
     return {"ora": ultima.replace(second=0, microsecond=0) if ultima else None,
             "file": dove, "aperte": aperte, "errori": errori, "manca": manca}
 
@@ -244,24 +211,18 @@ def esamina(spazio, id_, nome, cartella, sezioni, capogruppo=None, propria=()):
         r["avvisi"].append("la cartella non esiste più: correggere spazi.json")
         r["semaforo"], r["esito"] = "🔴", "la cartella del progetto non esiste"
         return r
-    # LEGGIMI e simili non sono agenti. Il capogruppo è quello di spazi.json
-    # (per Patrimonio è «titolare», che non comincia per ceo-); i ceo-* restano il ripiego.
+    # LEGGIMI e simili non sono agenti. Il capogruppo è quello di spazi.json; il ripiego è <id>-ceo.
     agenti = [a for a in sorted((cartella / ".claude/agents").glob("*.md")) if a.stem.upper() != "LEGGIMI"]
     r["agenti"] = len(agenti)
     ceo = [a.stem for a in agenti if a.stem == capogruppo] or \
-        [a.stem for a in agenti if a.stem.startswith(("ceo", "vice-ceo-"))]
+        [a.stem for a in agenti if a.stem.endswith("-ceo")]
     r["ceo"] = ceo[0] if ceo else None
     # specialisti: gli altri agenti; dove non ce ne sono, le skill del progetto
-    r["specialisti"] = [a.stem for a in agenti if a.stem != r["ceo"] and not a.stem.startswith("ceo")] or \
+    r["specialisti"] = [a.stem for a in agenti if a.stem != r["ceo"]] or \
         sorted(s.parent.name for s in (cartella / ".claude/skills").glob("*/SKILL.md"))
     r["modelli"] = {a.stem: modello(a) for a in agenti}
     if r["ceo"]:
         r["modelli"].update(modelli_skill(cartella / ".claude/agents" / f"{r['ceo']}.md"))
-    if r["ceo"] in REPORT_CEO:
-        rep = sorted((cartella / REPORT_CEO[r["ceo"]]).glob("*.md"))
-        r["ultimo_report"] = rep[-1].name if rep else None
-    if id_ == "crm":
-        r["registro_ceo"] = registro_scadenze()
     r["lavoro_ora"], r["lavoro_file"] = ultimo_lavoro(cartella)
     r["semaforo"], r["esito"] = esito(r)
     return r
@@ -271,43 +232,13 @@ def esito(r):
     """(semaforo, frase) per una riga: la cosa che l'utente vuole poter controllare."""
     m, w = r["memoria_ora"], r["lavoro_ora"]
     if m is None:
-        return "🔴", "il progetto non ha memoria in Memoria/"
+        return "🔴", "il progetto non ha memoria nella memoria condivisa"
     if w is not None and w > m + dt.timedelta(minutes=TOLLERANZA_MIN):
         ritardo = w - m
         ore, minuti = divmod(int(ritardo.total_seconds() // 60), 60)
         durata = f"{ore} h {minuti} min" if ore else f"{minuti} min"
         return "🟡", f"memoria indietro di {durata}: c'è lavoro più recente"
     return "🟢", "in ordine"
-
-
-def stampa_registro(entro):
-    """Voci aperte del registro capogruppo con scadenza fino a `entro`, le scadute per prime."""
-    try:
-        r = json.loads(REGISTRO_DIREZIONE.read_text(encoding="utf-8"))
-    except (OSError, ValueError) as e:
-        print(f"registro non leggibile: {e}")
-        sys.exit(2)
-    oggi = dt.date.today().isoformat()
-    voci = [("DEC", d["id"], d.get("entro") or "", d.get("titolo", ""),
-             d.get("beneficio_eur"), d.get("responsabile", ""))
-            for d in r.get("decisioni", []) if d.get("stato") in ("proposta", "in_corso")]
-    voci += [("DOM", d["id"], d.get("entro") or "", d.get("domanda", ""), None,
-              d.get("chi_chiede", ""))
-             for d in r.get("domande", []) if d.get("stato") == "aperta"]
-    voci = sorted((v for v in voci if v[2] and v[2][:10] <= entro), key=lambda v: v[2])
-    if "--json" in sys.argv:
-        print(json.dumps([{"tipo": v[0], "id": v[1], "entro": v[2][:10], "testo": v[3],
-                           "eur": v[4], "chi": v[5], "scaduta": v[2][:10] < oggi}
-                          for v in voci], ensure_ascii=False))
-        return
-    for tipo, id_, scad, testo, eur, chi in voci:
-        segno = "SCADUTA" if scad[:10] < oggi else "       "
-        soldi = f" · {eur} €" if eur else ""
-        print(f"{segno} {scad[:10]} {tipo} {id_} · {str(testo)[:90]}{soldi} · {str(chi)[:30]}")
-    senza = sum(1 for d in r.get("decisioni", []) + r.get("domande", [])
-                if not d.get("entro") and d.get("stato") in ("proposta", "in_corso", "aperta"))
-    print(f"— {len(voci)} voci fino al {entro}; {senza} aperte senza scadenza")
-
 
 
 def scrivi_pagina(righe):
@@ -332,7 +263,7 @@ def scrivi_pagina(righe):
                    f"{n(r.get('errori'))} | {lavoro} | {r.get('semaforo', '')} {r.get('esito', '')} |")
     out += ["", "## Come si legge", "",
             "- **Ultima nota in Memoria/**: l'ultima nota modificata nella sezione del progetto dentro "
-            "`Jarvis Brain/Memoria/` (la mappa progetto → sezione sta in `command-center/spazi.json`).",
+            "memoria condivisa (la mappa progetto → sezione sta in `command-center/spazi.json`).",
             "- **Da fare aperte**: le caselle `- [ ]` nel `Da fare.md` della sezione. **Errori**: le note in "
             "`Errori da non ripetere/`.",
             "- **Ultimo lavoro**: l'ultimo file toccato nella cartella del progetto, senza le uscite dei "
@@ -346,18 +277,9 @@ def scrivi_pagina(righe):
 
 
 def main():
-    if "--registro" in sys.argv:
-        i = sys.argv.index("--registro")
-        entro = sys.argv[i + 1] if len(sys.argv) > i + 1 else dt.date.today().isoformat()
-        stampa_registro(entro)
-        return
     righe = [esamina(*p) for p in leggi_spazi()]
     if "--scrivi" in sys.argv:
         scrivi_pagina(righe)
-        # la pagina condivisa del CRM (Mac + PC amministrazione): 0,1 s, solo file locali
-        team = ONEDRIVE / "Progetto CRM/strumenti/team/stato_team.py"
-        if team.exists():
-            subprocess.run([sys.executable, str(team)], capture_output=True, timeout=60)
         return
     problemi = any(r.get("semaforo") == "🔴" for r in righe)
 
@@ -367,16 +289,15 @@ def main():
                          default=str, ensure_ascii=False, indent=1))
         sys.exit(1 if problemi else 0)
 
+    if not righe:
+        print("Nessun progetto ancora: nascono con strumenti/crea_progetto.py (o chiedendolo all'assistente).")
+        sys.exit(0)
     f = lambda d: d.strftime("%Y-%m-%d %H:%M") if d else "—"
     n = lambda v: "—" if v is None else str(v)
     print(f"{'Progetto':<24}{'Memoria':<18}{'Da fare':<9}{'Errori':<8}{'Lavoro':<18}"
           f"{'Agenti':<8}{'capogruppo':<18}Esito · Note")
     for r in righe:
         note = list(r["avvisi"])
-        reg = r.get("registro_ceo")
-        if reg:
-            note.append(f"registro capogruppo: {reg['domande_aperte']} domande, "
-                        f"{reg['decisioni_aperte']} decisioni aperte")
         print(f"{r['progetto'][:23]:<24}{f(r.get('memoria_ora')):<18}{n(r.get('da_fare_aperte')):<9}"
               f"{n(r.get('errori')):<8}{f(r.get('lavoro_ora')):<18}{r['agenti']:<8}{(r['ceo'] or '—'):<18}"
               f"{r.get('semaforo', '')} {r.get('esito', '')}" + (f" · {' · '.join(note)}" if note else ""))
