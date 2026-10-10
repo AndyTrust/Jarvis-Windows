@@ -283,7 +283,8 @@ try {
             ".claude/memoria*/", ".claude/agents/", "backtalk/.jarvis_status*", "sincro/copie/", "sincro/ultimo.json", "command-center/configurazione.json", "command-center/spazi.json",
             "command-center/pannello.json", "command-center/lavori/", "command-center/missioni/", "command-center/missioni_archivio/", "command-center/catena-stato.json",
             "command-center/assistenza.json", "command-center/assistenza-registro.json", "command-center/assistenza-registro.json.*", "command-center/assistenza.log",
-            "strumenti/kokoro/*.onnx", "strumenti/kokoro/*.bin", "strumenti/*.log", "__pycache__/", "installazione.log") -join "`n")
+            "strumenti/kokoro/*.onnx", "strumenti/kokoro/*.bin", "strumenti/*.log", "__pycache__/", "installazione.log",
+            "command-center/vault-sezioni.json", "vault-esportazione-*.json", "*.vault", "*password*.csv", "*Password*.csv") -join "`n")
     }
     New-Item -ItemType Directory -Force -Path (Join-Path $Destinazione "backtalk") | Out-Null      # qui vive il file della lavagna in tempo reale
     Copy-Item (Join-Path $Radice "requirements.txt") (Join-Path $Destinazione "requirements.txt") -Force

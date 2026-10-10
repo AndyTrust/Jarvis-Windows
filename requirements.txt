@@ -14,3 +14,4 @@ sounddevice                    # microfono e altoparlanti
 pynput                         # Shift destro per accendere e spegnere l'ascolto
 pillow                         # l'orb e le icone
 edge-tts                       # voce primaria (serve internet); Kokoro Sara resta il ripiego offline
+cryptography>=42             # il Vault (command-center/vault_cc.py): cifratura AES-256-GCM; Apache-2.0 o BSD-3-Clause

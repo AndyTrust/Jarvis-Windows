@@ -16,6 +16,16 @@ diverso sta dietro `sys.platform == "win32"`. Qui cosa è passato, cosa è stato
 | `strumenti/report_pdf.py` | aggiornamenti del PDF dei report |
 | agente `ricercatore-web` (modello) | profilo aggiornato |
 
+## Il Vault (2026-10-10)
+
+| Parte | Su Windows |
+|---|---|
+| pagina #vault, cifratura, voci, storico, esporta/importa, backup, recupero con 24 parole, importazione da Chrome (CSV) | uguale al Mac |
+| chiave del dispositivo | DPAPI di Windows (`CryptProtectData`, ambito utente) al posto del Portachiavi di macOS; ripiego: file con i permessi dell'utente |
+| cartella dei dati | `%APPDATA%\Jarvis\vault\` |
+| uso da parte degli agenti nel browser (`vault.py usa`, `codice`) | non c'è: solo Mac e server Linux |
+| libreria | `cryptography` in `requirements.txt` (ambiente `.venv`) |
+
 ## Nuovo solo in questa distribuzione
 
 | File | Cosa fa |

@@ -114,5 +114,8 @@ Lavagna, menu agenti, pagine del Command Center e `Stato.md` si rileggono da lì
 
 - Il repository resta neutro: prima di ogni commit `python CONTROLLA-PULIZIA.py` deve dire 0.
 - Segreti mai nel repository né nella memoria condivisa: stanno solo in `%USERPROFILE%\.env.jarvis`.
+- Il Vault (`app\command-center\vault_cc.py`, pagina #vault, guida `docs\wiki\Vault.md`) tiene password, carte e PIN
+  del proprietario, cifrati in `%APPDATA%\Jarvis\vault\`. Non leggere i suoi file e non chiedere valori in chat. Su
+  Windows gli agenti non lo usano sul browser; le carte non si usano mai.
 - Prove, non ipotesi: dai per fatto solo quello che hai controllato con un comando o un file.
 - Conferma prima dell'irreversibile: cancellare, pubblicare, scrivere fuori dalle cartelle concordate.

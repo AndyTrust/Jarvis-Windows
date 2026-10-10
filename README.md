@@ -60,6 +60,7 @@ Si può rilanciare quando vuoi: aggiorna il codice e non tocca i tuoi file perso
 | [docs/COME-FUNZIONA.md](docs/COME-FUNZIONA.md) | le parti del programma e come si parlano |
 | [docs/wiki/Progetti-e-agenti.md](docs/wiki/Progetti-e-agenti.md) | come nascono, cambiano e si archiviano progetti e agenti |
 | [docs/wiki/Memoria-condivisa.md](docs/wiki/Memoria-condivisa.md) | la memoria comune, le giunzioni, stato e diario aggiornati da soli, la pulizia di `.claude` |
+| [docs/wiki/Vault.md](docs/wiki/Vault.md) | il Vault: password, carte e PIN cifrati sul PC (DPAPI), recupero con 24 parole, importazione da Chrome |
 | [docs/VOCE.md](docs/VOCE.md) | Whisper, Kokoro, filtro del rumore |
 | [docs/VPS-FACOLTATIVA.md](docs/VPS-FACOLTATIVA.md) | il server remoto facoltativo e il link di affiliazione |
 | [docs/AGGIORNARE.md](docs/AGGIORNARE.md) | aggiornare senza perdere niente |
@@ -80,6 +81,9 @@ all'autore del progetto. Puoi scegliere qualunque altro fornitore. Dettagli in [
   condivisa. `collega_memoria.py` controlla che nella memoria non ce ne siano; `INSTALLA.ps1 -DaRisposte` si ferma se il
   file delle risposte ne contiene uno.
 - Il tuo profilo, la memoria, le risposte di avvio e i registri sono nel `.gitignore`.
+- Password dei siti, carte e PIN: il **Vault** del Command Center (voce «Vault»). Parte vuoto, i dati stanno in
+  `%APPDATA%\Jarvis\vault\`, la chiave del dispositivo è protetta da DPAPI di Windows. Gli agenti non lo usano sul
+  browser in Windows (solo Mac e server Linux). Guida: [docs/wiki/Vault.md](docs/wiki/Vault.md).
 - Prima di pubblicare una modifica: `python CONTROLLA-PULIZIA.py` deve dire «0 nomi di file e 0 righe».
 
 ## Licenza

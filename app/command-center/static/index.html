@@ -45,6 +45,7 @@ if(/\bJarvisApp\//.test(navigator.userAgent))document.documentElement.classList.
 <link rel="stylesheet" href="/static/routine.css">
 <link rel="stylesheet" href="/static/notifiche.css">
 <!-- temi: dopo tutti gli altri fogli, cosi vince -->
+<link rel="stylesheet" href="/static/vault.css">
 <link rel="stylesheet" href="/static/temi.css">
 <script>window.CC_TOKEN = "__TOKEN__"; window.CC_ASSISTENTE = "__ASSISTENTE__";</script>
 <script src="/static/nome-assistente.js"></script>
@@ -895,6 +896,10 @@ a.pc-btn-link { padding: 3px 9px; font-size: 12px; border: 1px solid var(--linea
 
 <div id="toast" class="toast" role="status"></div>
 <script src="/static/app.js"></script>
+<!-- il Vault (cassaforte delle password): voce di menu e pagina #vault, vedi docs/wiki/Vault.md -->
+<script src="/static/vault_chrome.js" defer></script>
+<script src="/static/vault_gruppi.js" defer></script>
+<script src="/static/vault.js" defer></script>
 <script src="/static/vivo.js"></script>
 <script src="/static/memoria.js"></script>
 <script src="/static/audit.js"></script>

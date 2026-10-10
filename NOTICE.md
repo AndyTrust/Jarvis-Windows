@@ -29,6 +29,7 @@ dalle schede dei modelli. Le versioni sono quelle di `requirements.txt` o, dove 
 | pynput | tasto Shift destro | LGPL-3.0 | compatibile |
 | pillow | orb e icone | MIT-CMU | compatibile |
 | edge-tts | voce in rete (facoltativa) | LGPL-3.0 | compatibile; usa un servizio online di Microsoft con i suoi termini |
+| cryptography 42+ | il Vault: cifratura AES-256-GCM, HKDF, verifica dei token Google | Apache-2.0 o BSD-3-Clause, a scelta | compatibile |
 
 ## Modelli e programmi scaricati
 

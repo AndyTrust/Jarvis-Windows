@@ -110,4 +110,5 @@ uno alla volta. Lo stesso si fa dalla pagina «Progetti» del Command Center. Gu
 - `docs\wiki\Progetti-e-agenti.md`: come nascono, cambiano e si archiviano progetti e agenti.
 - `docs\wiki\Memoria-condivisa.md`: la memoria comune a Claude Code, all'assistente e agli altri programmi, e come si
   aggiorna da sola.
+- `docs\wiki\Vault.md`: il Vault, dove tenere password, carte e PIN (parte vuoto, lo crei con email e password).
 - `docs\VOCE.md`, `docs\VPS-FACOLTATIVA.md`, `docs\AGGIORNARE.md`, `docs\DISINSTALLARE.md`, `docs\PROBLEMI-WINDOWS.md`.
